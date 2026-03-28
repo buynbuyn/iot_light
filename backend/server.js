@@ -2,7 +2,9 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-
+const {
+    updateEnergySummary
+} = require("./service/energyService");
 const { runAnomalyDetection } = require("./service/anomalyService");
 const pool = require("./db");
 const { Client } = require("pg");
@@ -50,13 +52,47 @@ const listener = new Client({ connectionString: process.env.DATABASE_DIRECT_URL 
         console.error("❌ Listener connect failed:", err.message);
     }
 })();
-listener.on("notification", (msg) => {
-    const logId = parseInt(msg.payload);
-    console.log(`[DB Trigger] New log_id: ${logId}`);
-    runAnomalyDetection(logId);
-});
-listener.on("error", (err) => console.error("[Listener ERROR]", err.message));
+listener.on("notification", async (msg) => {
+    try {
+        const logId = parseInt(msg.payload);
 
+        console.log(`[DB Trigger] New log_id: ${logId}`);
+
+        // 1. anomaly
+        runAnomalyDetection(logId);
+
+        // 2. lấy log mới insert
+        const result = await pool.query(
+            `
+            SELECT zone_id, power_consumption, timestamp
+            FROM sensor_logs
+            WHERE log_id = $1
+            `,
+            [logId]
+        );
+
+        if (result.rows.length === 0) {
+            console.log("❌ Log not found");
+            return;
+        }
+
+        const log = result.rows[0];
+
+        console.log(`📊 Updating energy summary zone ${log.zone_id}`);
+
+        // 3. update summary + auto predict
+        await updateEnergySummary({
+            zone_id: log.zone_id,
+            power_consumption: log.power_consumption,
+            timestamp: log.timestamp
+        });
+
+        console.log(`✅ Energy + Prediction updated zone ${log.zone_id}`);
+
+    } catch (err) {
+        console.error("❌ Listener process error:", err);
+    }
+});
 // Test kết nối DB
 (async () => {
     try {

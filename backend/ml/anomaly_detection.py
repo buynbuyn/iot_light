@@ -57,7 +57,7 @@ for log_id in log_ids:
 
     # 🔥 FIX: nếu không nằm trong 500 dòng → query trực tiếp
     if new_row.empty:
-        print(f"log_id {log_id} not in recent 500 -> fetching from DB...")
+        print(f"log_id {log_id} not in recent 1000 -> fetching from DB...")
         cur.execute("""
             SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp
             FROM sensor_logs WHERE log_id = %s
