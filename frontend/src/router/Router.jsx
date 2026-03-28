@@ -1,16 +1,24 @@
-import React from 'react';
-import { createBrowserRouter } from 'react-router-dom';
-import App from '../actors/users/users_pages/user_home/App.jsx';
+import React from "react";
+import { createBrowserRouter } from "react-router-dom";
+import AdminLayout from "../layouts/AdminLayout";
+import Dashboard from "../pages/Dashboard";
+import AlertPage from "../pages/AlertsPage";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
-  },
-  {
-    path: "/about",
-    element: <div>Đây là trang About</div>,
-  },
+    element: <AdminLayout />,
+    children: [
+      {
+        index: true,
+        element: <Dashboard />
+      },
+      {
+        path: "alerts",      
+        element: <AlertPage />
+      }
+    ]
+  }
 ]);
 
 export default router;
