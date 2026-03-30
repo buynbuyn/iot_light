@@ -52,10 +52,10 @@ async function updateEnergySummary() {
     }
 }
 
-// 👉 chạy ngay khi start
+// chạy ngay khi start
 updateEnergySummary();
 
-// 👉 chạy mỗi 1 giờ
+// chạy mỗi 1 giờ
 setInterval(updateEnergySummary, 60 * 60 * 1000);
 
 console.log("⚡ EnergySummary Cron started (every 1 hour)");

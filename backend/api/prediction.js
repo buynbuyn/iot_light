@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const { runPrediction } = require("../service/predictionService");
 
-// GET /api/predictions/1
 router.get("/:zone_id", async (req, res) => {
     try {
         const zoneId = req.params.zone_id;
