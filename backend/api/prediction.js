@@ -1,19 +1,22 @@
 const express = require("express");
-const router = express.Router();
-const { runPrediction } = require("../service/predictionService");
+const pool = require("../db");
+const { predictEnergyForZone } = require("../service/energyService.js");
 
-router.get("/:zone_id", async (req, res) => {
-    try {
-        const zoneId = req.params.zone_id;
+const PredictApi = {
+    async getPredict(req, res) {
+        try {
+            const { id } = req.params;
+            const zoneId = parseInt(id)
+            const result = await predictEnergyForZone(zoneId);
+            res.json(result);
 
-        const result = await runPrediction(zoneId);
+            console.log(result)
 
-        res.json(result);
-
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: "Prediction failed" });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: "Prediction failed" });
+        }
     }
-});
+}
 
-module.exports = router;
+module.exports = { PredictApi };

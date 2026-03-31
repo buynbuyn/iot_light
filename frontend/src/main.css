@@ -297,7 +297,6 @@ html, body, #root {
 ════════════════════════════ */
 .main {
   flex: 1; overflow-y: auto;
-  padding: 28px 32px;
   scroll-behavior: smooth;
 }
 .main::-webkit-scrollbar { width: 5px; }

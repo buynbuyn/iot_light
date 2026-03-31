@@ -1,0 +1,526 @@
+[
+    {
+        "label": "psycopg2",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "psycopg2",
+        "description": "psycopg2",
+        "detail": "psycopg2",
+        "documentation": {}
+    },
+    {
+        "label": "pandas",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "pandas",
+        "description": "pandas",
+        "detail": "pandas",
+        "documentation": {}
+    },
+    {
+        "label": "sys",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sys",
+        "description": "sys",
+        "detail": "sys",
+        "documentation": {}
+    },
+    {
+        "label": "IsolationForest",
+        "importPath": "sklearn.ensemble",
+        "description": "sklearn.ensemble",
+        "isExtraImport": true,
+        "detail": "sklearn.ensemble",
+        "documentation": {}
+    },
+    {
+        "label": "IsolationForest",
+        "importPath": "sklearn.ensemble",
+        "description": "sklearn.ensemble",
+        "isExtraImport": true,
+        "detail": "sklearn.ensemble",
+        "documentation": {}
+    },
+    {
+        "label": "zscore",
+        "importPath": "scipy.stats",
+        "description": "scipy.stats",
+        "isExtraImport": true,
+        "detail": "scipy.stats",
+        "documentation": {}
+    },
+    {
+        "label": "zscore",
+        "importPath": "scipy.stats",
+        "description": "scipy.stats",
+        "isExtraImport": true,
+        "detail": "scipy.stats",
+        "documentation": {}
+    },
+    {
+        "label": "StandardScaler",
+        "importPath": "sklearn.preprocessing",
+        "description": "sklearn.preprocessing",
+        "isExtraImport": true,
+        "detail": "sklearn.preprocessing",
+        "documentation": {}
+    },
+    {
+        "label": "StandardScaler",
+        "importPath": "sklearn.preprocessing",
+        "description": "sklearn.preprocessing",
+        "isExtraImport": true,
+        "detail": "sklearn.preprocessing",
+        "documentation": {}
+    },
+    {
+        "label": "json",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "json",
+        "description": "json",
+        "detail": "json",
+        "documentation": {}
+    },
+    {
+        "label": "numpy",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "numpy",
+        "description": "numpy",
+        "detail": "numpy",
+        "documentation": {}
+    },
+    {
+        "label": "LinearRegression",
+        "importPath": "sklearn.linear_model",
+        "description": "sklearn.linear_model",
+        "isExtraImport": true,
+        "detail": "sklearn.linear_model",
+        "documentation": {}
+    },
+    {
+        "label": "DB_DIRECT_URL",
+        "kind": 5,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "DB_DIRECT_URL = \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n# ── NHẬN log_id ───────────────────────────────────────────\nif len(sys.argv) < 2:\n    print(\"No log_id provided, exiting.\")\n    sys.exit(0)\nlog_ids = [int(x) for x in sys.argv[1].split(\",\")]\nprint(f\"Processing for log_ids: {log_ids}\")\n# ── CONNECT ───────────────────────────────────────────────\nconn = psycopg2.connect(DB_DIRECT_URL)\ncur = conn.cursor()",
+        "detail": "backend.ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "log_ids",
+        "kind": 5,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "log_ids = [int(x) for x in sys.argv[1].split(\",\")]\nprint(f\"Processing for log_ids: {log_ids}\")\n# ── CONNECT ───────────────────────────────────────────────\nconn = psycopg2.connect(DB_DIRECT_URL)\ncur = conn.cursor()\n# ── LOAD DATA TRAIN (500 dòng gần nhất) ───────────────────\nquery = \"\"\"\n    SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp\n    FROM sensor_logs\n    ORDER BY timestamp DESC",
+        "detail": "backend.ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "conn",
+        "kind": 5,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "conn = psycopg2.connect(DB_DIRECT_URL)\ncur = conn.cursor()\n# ── LOAD DATA TRAIN (500 dòng gần nhất) ───────────────────\nquery = \"\"\"\n    SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp\n    FROM sensor_logs\n    ORDER BY timestamp DESC\n    LIMIT 500\n\"\"\"\ndf = pd.read_sql(query, conn)",
+        "detail": "backend.ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "cur",
+        "kind": 5,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "cur = conn.cursor()\n# ── LOAD DATA TRAIN (500 dòng gần nhất) ───────────────────\nquery = \"\"\"\n    SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp\n    FROM sensor_logs\n    ORDER BY timestamp DESC\n    LIMIT 500\n\"\"\"\ndf = pd.read_sql(query, conn)\nprint(f\"Loaded rows: {len(df)}\")",
+        "detail": "backend.ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "query",
+        "kind": 5,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "query = \"\"\"\n    SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp\n    FROM sensor_logs\n    ORDER BY timestamp DESC\n    LIMIT 500\n\"\"\"\ndf = pd.read_sql(query, conn)\nprint(f\"Loaded rows: {len(df)}\")\nif df.empty:\n    print(\"No data, exiting.\")",
+        "detail": "backend.ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "df",
+        "kind": 5,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "df = pd.read_sql(query, conn)\nprint(f\"Loaded rows: {len(df)}\")\nif df.empty:\n    print(\"No data, exiting.\")\n    conn.close()\n    sys.exit(0)\n# ── PREPROCESS ────────────────────────────────────────────\nfeature_cols = [\"brightness_level\", \"current_value\", \"voltage\", \"power_consumption\"]\ndf[feature_cols] = df[feature_cols].fillna(0)\nscaler = StandardScaler()",
+        "detail": "backend.ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "feature_cols",
+        "kind": 5,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "feature_cols = [\"brightness_level\", \"current_value\", \"voltage\", \"power_consumption\"]\ndf[feature_cols] = df[feature_cols].fillna(0)\nscaler = StandardScaler()\nfeatures_scaled = scaler.fit_transform(df[feature_cols])\nfeatures_scaled_df = pd.DataFrame(features_scaled, index=df.index, columns=feature_cols)\nz_scores_full = pd.DataFrame(zscore(features_scaled), index=df.index, columns=feature_cols)\nmodel = IsolationForest(n_estimators=300, contamination=0.05, random_state=42)\nmodel.fit(features_scaled)\n# ── LOOP TỪNG LOG ─────────────────────────────────────────\nfor log_id in log_ids:",
+        "detail": "backend.ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "df[feature_cols]",
+        "kind": 5,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "df[feature_cols] = df[feature_cols].fillna(0)\nscaler = StandardScaler()\nfeatures_scaled = scaler.fit_transform(df[feature_cols])\nfeatures_scaled_df = pd.DataFrame(features_scaled, index=df.index, columns=feature_cols)\nz_scores_full = pd.DataFrame(zscore(features_scaled), index=df.index, columns=feature_cols)\nmodel = IsolationForest(n_estimators=300, contamination=0.05, random_state=42)\nmodel.fit(features_scaled)\n# ── LOOP TỪNG LOG ─────────────────────────────────────────\nfor log_id in log_ids:\n    print(f\"\\n--- Checking log_id: {log_id} ---\")",
+        "detail": "backend.ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "scaler",
+        "kind": 5,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "scaler = StandardScaler()\nfeatures_scaled = scaler.fit_transform(df[feature_cols])\nfeatures_scaled_df = pd.DataFrame(features_scaled, index=df.index, columns=feature_cols)\nz_scores_full = pd.DataFrame(zscore(features_scaled), index=df.index, columns=feature_cols)\nmodel = IsolationForest(n_estimators=300, contamination=0.05, random_state=42)\nmodel.fit(features_scaled)\n# ── LOOP TỪNG LOG ─────────────────────────────────────────\nfor log_id in log_ids:\n    print(f\"\\n--- Checking log_id: {log_id} ---\")\n    new_row = df[df[\"log_id\"] == log_id]",
+        "detail": "backend.ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "features_scaled",
+        "kind": 5,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "features_scaled = scaler.fit_transform(df[feature_cols])\nfeatures_scaled_df = pd.DataFrame(features_scaled, index=df.index, columns=feature_cols)\nz_scores_full = pd.DataFrame(zscore(features_scaled), index=df.index, columns=feature_cols)\nmodel = IsolationForest(n_estimators=300, contamination=0.05, random_state=42)\nmodel.fit(features_scaled)\n# ── LOOP TỪNG LOG ─────────────────────────────────────────\nfor log_id in log_ids:\n    print(f\"\\n--- Checking log_id: {log_id} ---\")\n    new_row = df[df[\"log_id\"] == log_id]\n    # 🔥 FIX: nếu không nằm trong 500 dòng → query trực tiếp",
+        "detail": "backend.ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "features_scaled_df",
+        "kind": 5,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "features_scaled_df = pd.DataFrame(features_scaled, index=df.index, columns=feature_cols)\nz_scores_full = pd.DataFrame(zscore(features_scaled), index=df.index, columns=feature_cols)\nmodel = IsolationForest(n_estimators=300, contamination=0.05, random_state=42)\nmodel.fit(features_scaled)\n# ── LOOP TỪNG LOG ─────────────────────────────────────────\nfor log_id in log_ids:\n    print(f\"\\n--- Checking log_id: {log_id} ---\")\n    new_row = df[df[\"log_id\"] == log_id]\n    # 🔥 FIX: nếu không nằm trong 500 dòng → query trực tiếp\n    if new_row.empty:",
+        "detail": "backend.ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "z_scores_full",
+        "kind": 5,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "z_scores_full = pd.DataFrame(zscore(features_scaled), index=df.index, columns=feature_cols)\nmodel = IsolationForest(n_estimators=300, contamination=0.05, random_state=42)\nmodel.fit(features_scaled)\n# ── LOOP TỪNG LOG ─────────────────────────────────────────\nfor log_id in log_ids:\n    print(f\"\\n--- Checking log_id: {log_id} ---\")\n    new_row = df[df[\"log_id\"] == log_id]\n    # 🔥 FIX: nếu không nằm trong 500 dòng → query trực tiếp\n    if new_row.empty:\n        print(f\"log_id {log_id} not in recent 1000 -> fetching from DB...\")",
+        "detail": "backend.ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "model",
+        "kind": 5,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "model = IsolationForest(n_estimators=300, contamination=0.05, random_state=42)\nmodel.fit(features_scaled)\n# ── LOOP TỪNG LOG ─────────────────────────────────────────\nfor log_id in log_ids:\n    print(f\"\\n--- Checking log_id: {log_id} ---\")\n    new_row = df[df[\"log_id\"] == log_id]\n    # 🔥 FIX: nếu không nằm trong 500 dòng → query trực tiếp\n    if new_row.empty:\n        print(f\"log_id {log_id} not in recent 1000 -> fetching from DB...\")\n        cur.execute(\"\"\"",
+        "detail": "backend.ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "df",
+        "kind": 5,
+        "importPath": "backend.ml.energyModel",
+        "description": "backend.ml.energyModel",
+        "peekOfCode": "df = pd.DataFrame(data)\nif df.empty:\n    print(json.dumps({\n        \"predicted_wh\": 0,\n        \"model_used\": \"Linear Regression\",\n        \"warning\": \"Empty data\"\n    }))\n    sys.exit(0)\n# 2. Convert sang float và fill NaN\ndf['total_wh'] = pd.to_numeric(df['total_wh'], errors='coerce').fillna(0)",
+        "detail": "backend.ml.energyModel",
+        "documentation": {}
+    },
+    {
+        "label": "df['total_wh']",
+        "kind": 5,
+        "importPath": "backend.ml.energyModel",
+        "description": "backend.ml.energyModel",
+        "peekOfCode": "df['total_wh'] = pd.to_numeric(df['total_wh'], errors='coerce').fillna(0)\n# 3. Moving Average\ndf['Wh_ma'] = df['total_wh'].rolling(window=3, min_periods=1).mean().fillna(0)\n# 4. Linear Regression\nX = np.arange(len(df)).reshape(-1, 1)\ny = df['Wh_ma'].values\nif len(y) < 2:  # quá ít dữ liệu để fit regression\n    predicted_wh = y[-1] if len(y) == 1 else 0\n    print(json.dumps({\n        \"predicted_wh\": round(predicted_wh, 2),",
+        "detail": "backend.ml.energyModel",
+        "documentation": {}
+    },
+    {
+        "label": "df['Wh_ma']",
+        "kind": 5,
+        "importPath": "backend.ml.energyModel",
+        "description": "backend.ml.energyModel",
+        "peekOfCode": "df['Wh_ma'] = df['total_wh'].rolling(window=3, min_periods=1).mean().fillna(0)\n# 4. Linear Regression\nX = np.arange(len(df)).reshape(-1, 1)\ny = df['Wh_ma'].values\nif len(y) < 2:  # quá ít dữ liệu để fit regression\n    predicted_wh = y[-1] if len(y) == 1 else 0\n    print(json.dumps({\n        \"predicted_wh\": round(predicted_wh, 2),\n        \"model_used\": \"Linear Regression\",\n        \"warning\": \"Too few data points\"",
+        "detail": "backend.ml.energyModel",
+        "documentation": {}
+    },
+    {
+        "label": "X",
+        "kind": 5,
+        "importPath": "backend.ml.energyModel",
+        "description": "backend.ml.energyModel",
+        "peekOfCode": "X = np.arange(len(df)).reshape(-1, 1)\ny = df['Wh_ma'].values\nif len(y) < 2:  # quá ít dữ liệu để fit regression\n    predicted_wh = y[-1] if len(y) == 1 else 0\n    print(json.dumps({\n        \"predicted_wh\": round(predicted_wh, 2),\n        \"model_used\": \"Linear Regression\",\n        \"warning\": \"Too few data points\"\n    }))\n    sys.exit(0)",
+        "detail": "backend.ml.energyModel",
+        "documentation": {}
+    },
+    {
+        "label": "y",
+        "kind": 5,
+        "importPath": "backend.ml.energyModel",
+        "description": "backend.ml.energyModel",
+        "peekOfCode": "y = df['Wh_ma'].values\nif len(y) < 2:  # quá ít dữ liệu để fit regression\n    predicted_wh = y[-1] if len(y) == 1 else 0\n    print(json.dumps({\n        \"predicted_wh\": round(predicted_wh, 2),\n        \"model_used\": \"Linear Regression\",\n        \"warning\": \"Too few data points\"\n    }))\n    sys.exit(0)\nmodel = LinearRegression()",
+        "detail": "backend.ml.energyModel",
+        "documentation": {}
+    },
+    {
+        "label": "model",
+        "kind": 5,
+        "importPath": "backend.ml.energyModel",
+        "description": "backend.ml.energyModel",
+        "peekOfCode": "model = LinearRegression()\ntry:\n    model.fit(X, y)\nexcept Exception as e:\n    print(json.dumps({\n        \"predicted_wh\": 0,\n        \"model_used\": \"Linear Regression\",\n        \"error\": f\"Fit failed: {str(e)}\"\n    }))\n    sys.exit(0)",
+        "detail": "backend.ml.energyModel",
+        "documentation": {}
+    },
+    {
+        "label": "next_index",
+        "kind": 5,
+        "importPath": "backend.ml.energyModel",
+        "description": "backend.ml.energyModel",
+        "peekOfCode": "next_index = np.array([[len(df)]])\npredicted_wh = model.predict(next_index)[0]\nprint(json.dumps({\n    \"predicted_wh\": round(predicted_wh, 2),\n    \"model_used\": \"Linear Regression\"\n}))",
+        "detail": "backend.ml.energyModel",
+        "documentation": {}
+    },
+    {
+        "label": "predicted_wh",
+        "kind": 5,
+        "importPath": "backend.ml.energyModel",
+        "description": "backend.ml.energyModel",
+        "peekOfCode": "predicted_wh = model.predict(next_index)[0]\nprint(json.dumps({\n    \"predicted_wh\": round(predicted_wh, 2),\n    \"model_used\": \"Linear Regression\"\n}))",
+        "detail": "backend.ml.energyModel",
+        "documentation": {}
+    },
+    {
+        "label": "_Known",
+        "kind": 6,
+        "importPath": "frontend.node_modules.flatted.python.flatted",
+        "description": "frontend.node_modules.flatted.python.flatted",
+        "peekOfCode": "class _Known:\n    def __init__(self):\n        self.key = []\n        self.value = []\nclass _String:\n    def __init__(self, value):\n        self.value = value\ndef _array_keys(value):\n    keys = []\n    i = 0",
+        "detail": "frontend.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "_String",
+        "kind": 6,
+        "importPath": "frontend.node_modules.flatted.python.flatted",
+        "description": "frontend.node_modules.flatted.python.flatted",
+        "peekOfCode": "class _String:\n    def __init__(self, value):\n        self.value = value\ndef _array_keys(value):\n    keys = []\n    i = 0\n    for _ in value:\n        keys.append(i)\n        i += 1\n    return keys",
+        "detail": "frontend.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "parse",
+        "kind": 2,
+        "importPath": "frontend.node_modules.flatted.python.flatted",
+        "description": "frontend.node_modules.flatted.python.flatted",
+        "peekOfCode": "def parse(value, *args, **kwargs):\n    json = _json.loads(value, *args, **kwargs)\n    wrapped = []\n    for value in json:\n        wrapped.append(_wrap(value))\n    input = []\n    for value in wrapped:\n        if isinstance(value, _String):\n            input.append(value.value)\n        else:",
+        "detail": "frontend.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "stringify",
+        "kind": 2,
+        "importPath": "frontend.node_modules.flatted.python.flatted",
+        "description": "frontend.node_modules.flatted.python.flatted",
+        "peekOfCode": "def stringify(value, *args, **kwargs):\n    known = _Known()\n    input = []\n    output = []\n    i = int(_index(known, input, value))\n    while i < len(input):\n        output.append(_transform(known, input, input[i]))\n        i += 1\n    return _json.dumps(output, *args, **kwargs)",
+        "detail": "frontend.node_modules.flatted.python.flatted",
+        "documentation": {}
+    },
+    {
+        "label": "DB_URL",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "DB_URL = \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n# ── NHẬN log_id từ argument (do Node.js truyền vào) ──────────────────────────\nif len(sys.argv) < 2:\n    print(\"No log_id provided, exiting.\")\n    sys.exit(0)\nnew_log_id = int(sys.argv[1])\nprint(f\"Processing for log_id: {new_log_id}\")\n# ── CONNECT ───────────────────────────────────────────────────────────────────\nconn = psycopg2.connect(DB_URL)\ncur = conn.cursor()",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "new_log_id",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "new_log_id = int(sys.argv[1])\nprint(f\"Processing for log_id: {new_log_id}\")\n# ── CONNECT ───────────────────────────────────────────────────────────────────\nconn = psycopg2.connect(DB_URL)\ncur = conn.cursor()\n# ── LOAD 500 DÒNG GẦN NHẤT (để train model) ──────────────────────────────────\nquery = \"\"\"\n    SELECT log_id, zone_id, brightness_level, current_value, voltage,\n           power_consumption, timestamp\n    FROM sensor_logs",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "conn",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "conn = psycopg2.connect(DB_URL)\ncur = conn.cursor()\n# ── LOAD 500 DÒNG GẦN NHẤT (để train model) ──────────────────────────────────\nquery = \"\"\"\n    SELECT log_id, zone_id, brightness_level, current_value, voltage,\n           power_consumption, timestamp\n    FROM sensor_logs\n    ORDER BY timestamp DESC\n    LIMIT 500\n\"\"\"",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "cur",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "cur = conn.cursor()\n# ── LOAD 500 DÒNG GẦN NHẤT (để train model) ──────────────────────────────────\nquery = \"\"\"\n    SELECT log_id, zone_id, brightness_level, current_value, voltage,\n           power_consumption, timestamp\n    FROM sensor_logs\n    ORDER BY timestamp DESC\n    LIMIT 500\n\"\"\"\ndf = pd.read_sql(query, conn)",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "query",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "query = \"\"\"\n    SELECT log_id, zone_id, brightness_level, current_value, voltage,\n           power_consumption, timestamp\n    FROM sensor_logs\n    ORDER BY timestamp DESC\n    LIMIT 500\n\"\"\"\ndf = pd.read_sql(query, conn)\nprint(f\"Loaded rows: {len(df)}\")\nif df.empty:",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "df",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "df = pd.read_sql(query, conn)\nprint(f\"Loaded rows: {len(df)}\")\nif df.empty:\n    print(\"No data, exiting.\")\n    conn.close()\n    sys.exit(0)\n# ── LẤY DÒNG MỚI NHẤT VỪA GỬI TỚI ───────────────────────────────────────────\nnew_row = df[df[\"log_id\"] == new_log_id]\nif new_row.empty:\n    print(f\"log_id {new_log_id} not found in recent data, exiting.\")",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "new_row",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "new_row = df[df[\"log_id\"] == new_log_id]\nif new_row.empty:\n    print(f\"log_id {new_log_id} not found in recent data, exiting.\")\n    conn.close()\n    sys.exit(0)\n# ── TIỀN XỬ LÝ ───────────────────────────────────────────────────────────────\nfeature_cols = [\"brightness_level\", \"current_value\", \"voltage\", \"power_consumption\"]\ndf[feature_cols] = df[feature_cols].fillna(0)\nscaler = StandardScaler()\nfeatures_scaled = scaler.fit_transform(df[feature_cols])",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "feature_cols",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "feature_cols = [\"brightness_level\", \"current_value\", \"voltage\", \"power_consumption\"]\ndf[feature_cols] = df[feature_cols].fillna(0)\nscaler = StandardScaler()\nfeatures_scaled = scaler.fit_transform(df[feature_cols])\nfeatures_scaled_df = pd.DataFrame(features_scaled, index=df.index, columns=feature_cols)\n# ── RULE-BASED: ĐÈN KHÔNG HOẠT ĐỘNG ─────────────────────────────────────────\nrow = new_row.iloc[0]\nif row[\"brightness_level\"] == 0 and row[\"voltage\"] == 0:\n    cur.execute(\"\"\"\n        SELECT 1 FROM alerts",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "df[feature_cols]",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "df[feature_cols] = df[feature_cols].fillna(0)\nscaler = StandardScaler()\nfeatures_scaled = scaler.fit_transform(df[feature_cols])\nfeatures_scaled_df = pd.DataFrame(features_scaled, index=df.index, columns=feature_cols)\n# ── RULE-BASED: ĐÈN KHÔNG HOẠT ĐỘNG ─────────────────────────────────────────\nrow = new_row.iloc[0]\nif row[\"brightness_level\"] == 0 and row[\"voltage\"] == 0:\n    cur.execute(\"\"\"\n        SELECT 1 FROM alerts\n        WHERE zone_id=%s AND detected_time=%s AND alert_type='Lamp Failure'",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "scaler",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "scaler = StandardScaler()\nfeatures_scaled = scaler.fit_transform(df[feature_cols])\nfeatures_scaled_df = pd.DataFrame(features_scaled, index=df.index, columns=feature_cols)\n# ── RULE-BASED: ĐÈN KHÔNG HOẠT ĐỘNG ─────────────────────────────────────────\nrow = new_row.iloc[0]\nif row[\"brightness_level\"] == 0 and row[\"voltage\"] == 0:\n    cur.execute(\"\"\"\n        SELECT 1 FROM alerts\n        WHERE zone_id=%s AND detected_time=%s AND alert_type='Lamp Failure'\n    \"\"\", (row[\"zone_id\"], row[\"timestamp\"]))",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "features_scaled",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "features_scaled = scaler.fit_transform(df[feature_cols])\nfeatures_scaled_df = pd.DataFrame(features_scaled, index=df.index, columns=feature_cols)\n# ── RULE-BASED: ĐÈN KHÔNG HOẠT ĐỘNG ─────────────────────────────────────────\nrow = new_row.iloc[0]\nif row[\"brightness_level\"] == 0 and row[\"voltage\"] == 0:\n    cur.execute(\"\"\"\n        SELECT 1 FROM alerts\n        WHERE zone_id=%s AND detected_time=%s AND alert_type='Lamp Failure'\n    \"\"\", (row[\"zone_id\"], row[\"timestamp\"]))\n    if not cur.fetchone():",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "features_scaled_df",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "features_scaled_df = pd.DataFrame(features_scaled, index=df.index, columns=feature_cols)\n# ── RULE-BASED: ĐÈN KHÔNG HOẠT ĐỘNG ─────────────────────────────────────────\nrow = new_row.iloc[0]\nif row[\"brightness_level\"] == 0 and row[\"voltage\"] == 0:\n    cur.execute(\"\"\"\n        SELECT 1 FROM alerts\n        WHERE zone_id=%s AND detected_time=%s AND alert_type='Lamp Failure'\n    \"\"\", (row[\"zone_id\"], row[\"timestamp\"]))\n    if not cur.fetchone():\n        cur.execute(\"\"\"",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "row",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "row = new_row.iloc[0]\nif row[\"brightness_level\"] == 0 and row[\"voltage\"] == 0:\n    cur.execute(\"\"\"\n        SELECT 1 FROM alerts\n        WHERE zone_id=%s AND detected_time=%s AND alert_type='Lamp Failure'\n    \"\"\", (row[\"zone_id\"], row[\"timestamp\"]))\n    if not cur.fetchone():\n        cur.execute(\"\"\"\n            INSERT INTO alerts (zone_id, alert_type, detected_time, severity, status)\n            VALUES (%s, %s, %s, %s, %s)",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "new_idx",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "new_idx = new_row.index[0]\nnew_row_scaled = features_scaled_df.loc[new_idx]\n# Z-score tính trên toàn bộ tập để chuẩn hóa phân phối\nz_scores_full = pd.DataFrame(zscore(features_scaled), index=df.index, columns=feature_cols)\nz_anomaly = (z_scores_full.loc[new_idx].abs() > 2.5).any()\nprint(f\"Z-score anomaly: {z_anomaly}\")\n# ── ISOLATION FOREST: train trên toàn bộ, predict dòng mới ──────────────────\nmodel = IsolationForest(n_estimators=300, contamination=0.1, random_state=42)\nmodel.fit(features_scaled)\nnew_scaled_input = features_scaled_df.loc[[new_idx]]",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "new_row_scaled",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "new_row_scaled = features_scaled_df.loc[new_idx]\n# Z-score tính trên toàn bộ tập để chuẩn hóa phân phối\nz_scores_full = pd.DataFrame(zscore(features_scaled), index=df.index, columns=feature_cols)\nz_anomaly = (z_scores_full.loc[new_idx].abs() > 2.5).any()\nprint(f\"Z-score anomaly: {z_anomaly}\")\n# ── ISOLATION FOREST: train trên toàn bộ, predict dòng mới ──────────────────\nmodel = IsolationForest(n_estimators=300, contamination=0.1, random_state=42)\nmodel.fit(features_scaled)\nnew_scaled_input = features_scaled_df.loc[[new_idx]]\niso_pred = model.predict(new_scaled_input)[0]",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "z_scores_full",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "z_scores_full = pd.DataFrame(zscore(features_scaled), index=df.index, columns=feature_cols)\nz_anomaly = (z_scores_full.loc[new_idx].abs() > 2.5).any()\nprint(f\"Z-score anomaly: {z_anomaly}\")\n# ── ISOLATION FOREST: train trên toàn bộ, predict dòng mới ──────────────────\nmodel = IsolationForest(n_estimators=300, contamination=0.1, random_state=42)\nmodel.fit(features_scaled)\nnew_scaled_input = features_scaled_df.loc[[new_idx]]\niso_pred = model.predict(new_scaled_input)[0]\niso_anomaly = (iso_pred == -1)\nprint(f\"Isolation Forest anomaly: {iso_anomaly}\")",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "z_anomaly",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "z_anomaly = (z_scores_full.loc[new_idx].abs() > 2.5).any()\nprint(f\"Z-score anomaly: {z_anomaly}\")\n# ── ISOLATION FOREST: train trên toàn bộ, predict dòng mới ──────────────────\nmodel = IsolationForest(n_estimators=300, contamination=0.1, random_state=42)\nmodel.fit(features_scaled)\nnew_scaled_input = features_scaled_df.loc[[new_idx]]\niso_pred = model.predict(new_scaled_input)[0]\niso_anomaly = (iso_pred == -1)\nprint(f\"Isolation Forest anomaly: {iso_anomaly}\")\n# ── GỘP KẾT QUẢ 2 THUẬT TOÁN ─────────────────────────────────────────────────",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "model",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "model = IsolationForest(n_estimators=300, contamination=0.1, random_state=42)\nmodel.fit(features_scaled)\nnew_scaled_input = features_scaled_df.loc[[new_idx]]\niso_pred = model.predict(new_scaled_input)[0]\niso_anomaly = (iso_pred == -1)\nprint(f\"Isolation Forest anomaly: {iso_anomaly}\")\n# ── GỘP KẾT QUẢ 2 THUẬT TOÁN ─────────────────────────────────────────────────\nis_anomaly = z_anomaly or iso_anomaly\nprint(f\"Final anomaly decision: {is_anomaly}\")\n# ── LƯU ALERT NẾU CÓ BẤT THƯỜNG ─────────────────────────────────────────────",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "new_scaled_input",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "new_scaled_input = features_scaled_df.loc[[new_idx]]\niso_pred = model.predict(new_scaled_input)[0]\niso_anomaly = (iso_pred == -1)\nprint(f\"Isolation Forest anomaly: {iso_anomaly}\")\n# ── GỘP KẾT QUẢ 2 THUẬT TOÁN ─────────────────────────────────────────────────\nis_anomaly = z_anomaly or iso_anomaly\nprint(f\"Final anomaly decision: {is_anomaly}\")\n# ── LƯU ALERT NẾU CÓ BẤT THƯỜNG ─────────────────────────────────────────────\nif is_anomaly:\n    cur.execute(\"\"\"",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "iso_pred",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "iso_pred = model.predict(new_scaled_input)[0]\niso_anomaly = (iso_pred == -1)\nprint(f\"Isolation Forest anomaly: {iso_anomaly}\")\n# ── GỘP KẾT QUẢ 2 THUẬT TOÁN ─────────────────────────────────────────────────\nis_anomaly = z_anomaly or iso_anomaly\nprint(f\"Final anomaly decision: {is_anomaly}\")\n# ── LƯU ALERT NẾU CÓ BẤT THƯỜNG ─────────────────────────────────────────────\nif is_anomaly:\n    cur.execute(\"\"\"\n        SELECT 1 FROM alerts",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "iso_anomaly",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "iso_anomaly = (iso_pred == -1)\nprint(f\"Isolation Forest anomaly: {iso_anomaly}\")\n# ── GỘP KẾT QUẢ 2 THUẬT TOÁN ─────────────────────────────────────────────────\nis_anomaly = z_anomaly or iso_anomaly\nprint(f\"Final anomaly decision: {is_anomaly}\")\n# ── LƯU ALERT NẾU CÓ BẤT THƯỜNG ─────────────────────────────────────────────\nif is_anomaly:\n    cur.execute(\"\"\"\n        SELECT 1 FROM alerts\n        WHERE zone_id=%s AND detected_time=%s AND alert_type='Energy Anomaly'",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "is_anomaly",
+        "kind": 5,
+        "importPath": "ml.anomaly_detection",
+        "description": "ml.anomaly_detection",
+        "peekOfCode": "is_anomaly = z_anomaly or iso_anomaly\nprint(f\"Final anomaly decision: {is_anomaly}\")\n# ── LƯU ALERT NẾU CÓ BẤT THƯỜNG ─────────────────────────────────────────────\nif is_anomaly:\n    cur.execute(\"\"\"\n        SELECT 1 FROM alerts\n        WHERE zone_id=%s AND detected_time=%s AND alert_type='Energy Anomaly'\n    \"\"\", (row[\"zone_id\"], row[\"timestamp\"]))\n    if not cur.fetchone():\n        cur.execute(\"\"\"",
+        "detail": "ml.anomaly_detection",
+        "documentation": {}
+    }
+]

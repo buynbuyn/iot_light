@@ -14,6 +14,7 @@ const alertRoutes = require("./routes/alertRoutes");
 const anomalyHistoryRoutes = require("./routes/anomaly_historyRoutes");
 const sensorRoutes = require("./api/sensor");
 const energyRoutes = require("./routes/energyRoutes");
+const predictRoutes = require("./routes/predictRoutes")
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use("/api/alerts", alertRoutes);
 app.use("/api/anomaly-history", anomalyHistoryRoutes);
 app.use("/api/sensors", sensorRoutes);
 app.use("/api/energy", energyRoutes);
+app.use("/api/predict", predictRoutes)
 
 // LISTEN/NOTIFY DB (sensor trigger)
 const listener = new Client({ connectionString: process.env.DATABASE_DIRECT_URL });

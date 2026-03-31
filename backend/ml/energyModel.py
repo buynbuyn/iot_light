@@ -8,6 +8,7 @@ from sklearn.linear_model import LinearRegression
 try:
     data = json.loads(sys.argv[1])  # list of {month, total_kwh}
 except Exception as e:
+    print("RAW:", sys.argv[1])
     print(json.dumps({
         "predicted_wh": 0,
         "model_used": "Linear Regression",

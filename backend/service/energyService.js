@@ -1,6 +1,6 @@
-const db = require("../db");
+const pool = require("../db.js");
 const path = require("path");
-const { PythonShell } = require("python-shell");
+const { spawn } = require("child_process");
 /**
 Cập nhật energy_summary từ sensor và tự động dự đoán
 Dùng đơn vị Wh cho hệ nhỏ
@@ -12,7 +12,7 @@ async function updateEnergySummary({ zone_id, power_consumption, timestamp }) {
         const dateOnly = currentTime.toISOString().slice(0, 10);
 
         // 1) lấy log trước đó cùng zone
-        const prevLogResult = await db.query(`
+        const prevLogResult = await pool.query(`
             SELECT timestamp
             FROM sensor_logs
             WHERE zone_id = $1
@@ -41,7 +41,7 @@ async function updateEnergySummary({ zone_id, power_consumption, timestamp }) {
         }
 
         // 3) lấy giá điện
-        const priceResult = await db.query(`
+        const priceResult = await pool.query(`
             SELECT price_id, price_per_kwh
             FROM electricity_price
             WHERE effective_date <= $1::date
@@ -58,7 +58,7 @@ async function updateEnergySummary({ zone_id, power_consumption, timestamp }) {
         const total_cost = (wh / 1000) * price.price_per_kwh;
 
         // 4) update energy_summary
-        await db.query(`
+        await pool.query(`
             INSERT INTO energy_summary
             (zone_id, month, total_wh, total_cost, price_id)
             VALUES ($1, $2, $3, $4, $5)
@@ -88,74 +88,154 @@ async function updateEnergySummary({ zone_id, power_consumption, timestamp }) {
 /**
  * Dự đoán Wh tháng tới
  */
-async function predictEnergyForZone(zone_id) {
+async function updateEnergySummary({ zone_id, power_consumption, timestamp }) {
     try {
-        // 1) lấy lịch sử energy
-        const energyData = await db.query(`
-            SELECT month, total_wh
-            FROM energy_summary
+        const currentTime = new Date(timestamp);
+        const month = currentTime.toISOString().slice(0, 7) + "-01";
+        const dateOnly = currentTime.toISOString().slice(0, 10);
+
+        // 1) lấy log trước đó
+        const prevLogResult = await pool.query(`
+            SELECT timestamp
+            FROM sensor_logs
             WHERE zone_id = $1
-            ORDER BY month ASC
-        `, [zone_id]);
+              AND timestamp < $2
+            ORDER BY timestamp DESC
+            LIMIT 1
+        `, [zone_id, currentTime]);
 
-        energyData.rows.forEach((r) => {
-            r.total_wh = parseFloat(r.total_wh) || 0;
-        });
+        let wh = 0;
 
-        // 2) lấy giá điện mới nhất
-        const priceResult = await db.query(`
+        if (prevLogResult.rows.length > 0) {
+            const prevTime = new Date(prevLogResult.rows[0].timestamp);
+
+            const deltaMs = currentTime - prevTime;
+            const deltaHours = deltaMs / (1000 * 60 * 60);
+
+            wh = power_consumption * deltaHours;
+
+            console.log(
+                `⚡ Zone ${zone_id} | Δt=${deltaHours.toFixed(6)}h | Energy=${wh.toFixed(4)} Wh`
+            );
+        } else {
+            console.log(`⚠️ First log zone ${zone_id}, wh = 0`);
+        }
+
+        // 2) lấy giá điện
+        const priceResult = await pool.query(`
             SELECT price_id, price_per_kwh
             FROM electricity_price
+            WHERE effective_date <= $1::date
             ORDER BY effective_date DESC
             LIMIT 1
-        `);
+        `, [dateOnly]);
 
         const price = priceResult.rows[0] || {
             price_id: null,
             price_per_kwh: 0
         };
 
-        // 3) gọi Python
-        const options = {
-            mode: "json",
-            pythonOptions: ["-u"],
-            args: [JSON.stringify(energyData.rows)]
-        };
+        const total_cost = (wh / 1000) * price.price_per_kwh;
 
-        const scriptPath = path.join(
-            __dirname,
-            "../ml/energyModel.py"
-        );
+        // 3) update energy_summary
+        await pool.query(`
+            INSERT INTO energy_summary
+            (zone_id, month, total_wh, total_cost, price_id)
+            VALUES ($1, $2, $3, $4, $5)
+            ON CONFLICT (zone_id, month)
+            DO UPDATE SET
+                total_wh = energy_summary.total_wh + EXCLUDED.total_wh,
+                total_cost = energy_summary.total_cost + EXCLUDED.total_cost,
+                price_id = COALESCE(EXCLUDED.price_id, energy_summary.price_id)
+        `, [
+            zone_id,
+            month,
+            wh,
+            total_cost,
+            price.price_id
+        ]);
+
+        console.log(`✅ Energy summary updated zone ${zone_id}`);
+
+        // 4) auto predict
+        await predictEnergyForZone(zone_id);
+
+    } catch (err) {
+        console.error("❌ Error updating energy_summary:", err);
+    }
+}
+
+/**
+ * Dự đoán Wh tháng tới
+ */
+async function predictEnergyForZone(zone_id) {
+    try {
+        const energyData = await pool.query(`
+            SELECT month, total_wh
+            FROM energy_summary
+            WHERE zone_id = $1
+            ORDER BY month ASC
+        `, [zone_id]);
+
+        const formattedData = energyData.rows.map((d) => ({
+            month: d.month.toISOString().slice(0, 10),
+            total_wh: parseFloat(d.total_wh)
+        }));
+
+        if (formattedData.length < 2) {
+            console.log("⚠️ Not enough data to predict");
+            return null;
+        }
+
+        const priceResult = await pool.query(`
+            SELECT price_id, price_per_kwh
+            FROM electricity_price
+            ORDER BY effective_date DESC
+            LIMIT 1
+        `);
+
+        const price = priceResult.rows[0]?.price_per_kwh || 0;
+
+        const scriptPath = path.join(__dirname, "../ml/energyModel.py");
 
         return new Promise((resolve, reject) => {
-            PythonShell.run(scriptPath, options, async (err, results) => {
-                if (err) {
-                    console.error("❌ PythonShell Error:", err);
-                    return reject(err);
-                }
+            const py = spawn("python", [
+                scriptPath,
+                JSON.stringify(formattedData)
+            ]);
 
-                if (!results || results.length === 0) {
-                    return reject(new Error("Empty Python result"));
+            let output = "";
+            let errorOutput = "";
+
+            py.stdout.on("data", (data) => {
+                output += data.toString();
+            });
+
+            py.stderr.on("data", (data) => {
+                errorOutput += data.toString();
+            });
+
+            py.on("close", async (code) => {
+                if (code !== 0) {
+                    console.error("❌ Python exit code:", code);
+                    console.error("stderr:", errorOutput);
+                    return reject(new Error(errorOutput));
                 }
 
                 try {
-                    const res = results[0];
+                    console.log("📦 Raw Python output:", output);
 
-                    console.log("📈 Python result:", res);
+                    const res = JSON.parse(output.trim());
 
-                    const predicted_wh =
-                        parseFloat(res.predicted_wh) || 0;
+                    const predicted_wh = res.predicted_wh;
 
-                    // đổi sang kWh để tính tiền
                     const predicted_cost =
-                        (predicted_wh / 1000) * price.price_per_kwh;
+                        (predicted_wh / 1000) * price;
 
                     const target_month = new Date();
-                    target_month.setMonth(
-                        target_month.getMonth() + 1
-                    );
+                    target_month.setMonth(target_month.getMonth() + 1);
 
-                    await db.query(`
+                    await pool.query(`
                         INSERT INTO prediction_history
                         (
                             zone_id,
@@ -174,16 +254,15 @@ async function predictEnergyForZone(zone_id) {
                         res.model_used
                     ]);
 
-                    console.log(`✅ Prediction saved zone ${zone_id}`);
-
                     resolve({
                         predicted_wh,
                         predicted_cost,
                         model_used: res.model_used
                     });
 
-                } catch (e) {
-                    reject(e);
+                } catch (err) {
+                    console.error("❌ JSON parse error:", err);
+                    reject(err);
                 }
             });
         });
