@@ -33,9 +33,8 @@ async function moveExpiredAlerts() {
 
 // Chạy ngay khi server khởi động
 moveExpiredAlerts();
-
 // Sau đó cứ mỗi 1 giờ check lại
-const INTERVAL_MS = 60 * 60 * 1000; // đổi thành 60 * 1000 nếu muốn check mỗi phút
+const INTERVAL_MS = 10 * 1000; // đổi thành 60 * 1000 nếu muốn check mỗi phút
 setInterval(moveExpiredAlerts, INTERVAL_MS);
 
 console.log("[MoveAlert] Scheduler started — checking every 1 hour.");

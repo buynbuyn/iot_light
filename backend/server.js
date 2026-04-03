@@ -2,6 +2,7 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+require("./cron/movealerts");
 const {
     updateEnergySummary
 } = require("./service/energyService");
@@ -61,6 +62,7 @@ listener.on("notification", async (msg) => {
 
         console.log(`[DB Trigger] New log_id: ${logId}`);
 
+        await moveExpiredAlerts();
         // 1. anomaly
         runAnomalyDetection(logId);
 
