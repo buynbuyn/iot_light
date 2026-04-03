@@ -20,17 +20,30 @@ const PredictApi = {
 
     async getPredict(req, res) {
         try {
-            const date = new Date().toISOString();
+            const now = new Date();
 
-            console.log(date)
+            const vnTime = new Date(now.getTime() + 7 * 60 * 60 * 1000);
+
+            const formatted =
+            vnTime.toISOString()
+                .replace("T", " ")
+                .replace("Z", "");
 
             const { rows } = await pool.query(`
-                SELECT * 
-                FROM prediction_history 
-                WHERE prediction_date = $1
-            `, [date])
+                SELECT p.*, 
+                    z.*, 
+                    e.*,
+                    (predicted_wh - total_wh)%100 as deviation,
+                    SUM(e.total_wh) as current,
+                    SUM(p.predicted_cost) as cost
+                FROM prediction_history p
+                JOIN zones z ON z.zone_id = p.zone_id
+                JOIN energy_summary e ON e.zone_id = z.zone_id 
+                    AND DATE_TRUNC('month', e.month) = DATE_TRUNC('month', $1::timestamp)
+                WHERE DATE_TRUNC('month', p.prediction_date) = DATE_TRUNC('month', $1::timestamp)
+                GROUP BY p.prediction_id, z.zone_id, e.summary_id
+            `, [formatted])
 
-            console.log(rows)
             
             if (rows.length > 0) {
                 res.status(200).json({
