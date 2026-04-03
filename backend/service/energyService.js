@@ -158,17 +158,16 @@ async function predictEnergyForZone(zone_id) {
 
                     const target_month = targetMonthResult.rows[0].target_month;
 
-                    // 🔍 kiểm tra tồn tại
                     const existing = await pool.query(`
                         SELECT prediction_id, zone_id, target_month
                         FROM prediction_history
                         WHERE zone_id = $1
-                        AND target_month = $2
+                        AND target_month >= DATE_TRUNC('month', $2::timestamp)
+                        AND target_month < DATE_TRUNC('month', $2::timestamp) + INTERVAL '1 month'
                         LIMIT 1
                     `, [zone_id, target_month]);
 
                     if (existing.rows.length > 0) {
-                        // ✅ UPDATE
                         await pool.query(`
                             UPDATE prediction_history
                             SET
@@ -177,7 +176,8 @@ async function predictEnergyForZone(zone_id) {
                                 predicted_cost = $2,
                                 model_used = $3
                             WHERE zone_id = $4
-                            AND target_month = $5
+                            AND target_month >= DATE_TRUNC('month', $5::timestamp)
+                            AND target_month < DATE_TRUNC('month', $5::timestamp) + INTERVAL '1 month'
                         `, [
                             predicted_wh,
                             predicted_cost,
@@ -188,7 +188,6 @@ async function predictEnergyForZone(zone_id) {
 
                         console.log("♻️ Prediction UPDATED");
                     } else {
-                        // ✅ INSERT
                         await pool.query(`
                             INSERT INTO prediction_history
                             (
