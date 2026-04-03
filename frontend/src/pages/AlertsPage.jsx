@@ -1,152 +1,111 @@
-import { useEffect, useState } from "react"
-import React from "react"
-import "../css/alerts.css"
+import { useEffect, useState } from "react";
+import React from "react";
+import "../css/alerts.css";
 
 function AlertPage() {
-
-    const [alerts, setAlerts] = useState([])
-    const [history, setHistory] = useState([])
+    const [alerts, setAlerts] = useState([]);
+    const [history, setHistory] = useState([]);
 
     useEffect(() => {
-
         fetch("http://localhost:5000/api/alerts")
-            .then(res => res.json())
-            .then(data => setAlerts(data))
+            .then((res) => res.json())
+            .then((data) => setAlerts(data));
 
         fetch("http://localhost:5000/api/anomaly-history")
-            .then(res => res.json())
-            .then(data => setHistory(data))
-
-    }, [])
+            .then((res) => res.json())
+            .then((data) => setHistory(data));
+    }, []);
 
     return (
-
-        <div>
-
-            <h2>Phát hiện bất thường</h2>
-
-            <div className="two-tables">
-
-                {/* ALERTS */}
-                <div className="table-box">
-                    <h3>⚠️ Alerts (Hiện tại)</h3>
-
-                    <table className="alerts-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Khu vực</th>
-                                <th>Loại</th>
-                                <th>Mức độ</th>
-                                <th>Thời gian</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-                            {alerts.length === 0 && (
-                                <tr>
-                                    <td colSpan="5">
-                                        <div className="empty-state">
-                                            <div className="empty-icon">⚠️</div>
-                                            <p>Không có cảnh báo</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            )}
-
-                            {alerts.map(a => (
-                                <tr key={a.alert_id}>
-
-                                    <td>{a.alert_id}</td>
-                                    <td>{a.zone_id}</td>
-
-                                    <td>
-                                        <span className="type-tag">
-                                            {a.alert_type}
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        <span className={`severity-pill ${a.severity}`}>
-                                            <span className="pill-dot"></span>
-                                            {a.severity}
-                                        </span>
-                                    </td>
-
-                                    <td>
-                                        {new Date(a.detected_time).toLocaleString()}
-                                    </td>
-
-                                </tr>
-                            ))}
-
-                        </tbody>
-                    </table>
+        <div className="dashboard-container">
+            {/* SIDEBAR BÊN TRÁI: CẢNH BÁO NÓNG */}
+            <aside className="alert-sidebar">
+                <div className="sidebar-header">
+                    <h3>📢 Cảnh báo nóng</h3>
+                    <span className="live-tag">LIVE</span>
                 </div>
 
-                {/* HISTORY */}
-                <div className="table-box">
-                    <h3>📜 History</h3>
+                <div className="alert-cards-container">
+                    {alerts.length === 0 ? (
+                        <div className="empty-state-mini">Không có cảnh báo mới</div>
+                    ) : (
+                        alerts.map((a) => (
+                            <div key={a.alert_id} className={`alert-card border-${a.severity}`}>
+                                <div className="card-top">
+                                    <span className="node-id">NODE-{a.alert_id}</span>
+                                    <span className="card-time">
+                                        {new Date(a.detected_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
+                                </div>
+                                <h4 className="alert-title">{a.alert_type}</h4>
+                                <div className="card-bottom">
+                                    <span>📍 {a.zone_id}</span>
+                                    <span className={`status-text ${a.severity}`}>● {a.severity}</span>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
 
-                    <table className="alerts-table">
+                <div className="ai-info-box">
+                    <h5>AI INTELLIGENCE</h5>
+                    <p>Hệ thống đang sử dụng mô hình Z - Core & Isolation Forest để phát hiện dữ liệu bất thường.</p>
+                    <div className="accuracy-bar">
+                        <div className="progress" style={{ width: "88%" }}></div>
+                    </div>
+                    
+                </div>
+            </aside>
+
+            {/* NỘI DUNG CHÍNH BÊN PHẢI: LỊCH SỬ */}
+            <main className="history-main">
+                <div className="main-header">
+                    <div>
+                        <h2>Lịch sử cảnh báo</h2>
+                        <p className="subtitle">Dữ liệu tổng hợp từ anomaly_history</p>
+                    </div>
+                    <div className="header-actions">
+                        <button className="btn-outline">Bộ lọc</button>
+                        <button className="btn-primary">Xuất báo cáo</button>
+                    </div>
+                </div>
+
+                <div className="table-container">
+                    <table className="history-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Khu vực</th>
-                                <th>Loại</th>
-                                <th>Mức độ</th>
-                                <th>Thời gian</th>
+                                <th>MÃ NODE</th>
+                                <th>KHU VỰC</th>
+                                <th>LOẠI SỰ CỐ</th>
+                                <th>MỨC ĐỘ</th>
+                                <th>THỜI GIAN</th>
                             </tr>
                         </thead>
-
                         <tbody>
-
-                            {history.length === 0 && (
-                                <tr>
-                                    <td colSpan="5">
-                                        <div className="empty-state">
-                                            <div className="empty-icon">📭</div>
-                                            <p>Không có dữ liệu history</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            )}
-
-                            {history.map(h => (
+                            {history.map((h) => (
                                 <tr key={h.anomaly_id}>
-
-                                    <td>{h.anomaly_id}</td>
+                                    <td className="node-cell">NODE-{h.anomaly_id}</td>
                                     <td>{h.zone_id}</td>
-
                                     <td>
-                                        <span className="type-tag">
-                                            {h.anomaly_type}
-                                        </span>
+                                        <span className="incident-type">● {h.anomaly_type}</span>
                                     </td>
-
                                     <td>
-                                        <span className={`severity-pill ${h.severity}`}>
-                                            <span className="pill-dot"></span>
+                                        <span className={`severity-text ${h.severity}`}>
                                             {h.severity}
                                         </span>
                                     </td>
-
-                                    <td>
-                                        {new Date(h.detected_time).toLocaleString()}
+                                    <td className="time-cell">
+                                        {new Date(h.detected_time).toLocaleDateString()} <br />
+                                        <small>{new Date(h.detected_time).toLocaleTimeString()}</small>
                                     </td>
-
                                 </tr>
                             ))}
-
                         </tbody>
                     </table>
                 </div>
-
-            </div>
-
+            </main>
         </div>
-    )
+    );
 }
 
-export default AlertPage
+export default AlertPage;
