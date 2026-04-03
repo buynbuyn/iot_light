@@ -18,6 +18,7 @@ router.post("/", async (req, res) => {
         for (const log of logs) {
             const {
                 zone_id,
+                timestamp,
                 motion_detected,
                 brightness_level,
                 current_value,
@@ -38,10 +39,11 @@ router.post("/", async (req, res) => {
                     voltage,
                     power_consumption
                 )
-                VALUES ($1, NOW(), $2, $3, $4, $5, $6)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
                 RETURNING log_id, timestamp`,
                 [
                     zone_id,
+                    timestamp,
                     motion_detected,
                     brightness_level,
                     current_value,
@@ -60,6 +62,8 @@ router.post("/", async (req, res) => {
             // anomaly async
             runAnomalyDetection(logId);
 
+            console.log(zone_id, power_consumption, logTimestamp)
+
             // energy + auto predict
             await updateEnergySummary({
                 zone_id,
@@ -68,7 +72,7 @@ router.post("/", async (req, res) => {
             });
 
             console.log(`✅ Zone ${zone_id} completed`);
-        }
+        }2
 
         console.log("🚀 Sending response...");
 

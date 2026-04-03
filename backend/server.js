@@ -54,6 +54,7 @@ const listener = new Client({ connectionString: process.env.DATABASE_DIRECT_URL 
         console.error("❌ Listener connect failed:", err.message);
     }
 })();
+
 listener.on("notification", async (msg) => {
     try {
         const logId = parseInt(msg.payload);

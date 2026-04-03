@@ -3,10 +3,25 @@ import "../css/report.css"
 
 export default function ReportPage() {
     const [zones ,setZones] = useState([]);
+    const [predict, setPredict] = useState([])
+    const [current, setCurrent] = useState([])
     const [error, setError] = useState("");
 
     useEffect(() => {
+        const getFee = async () => {
+            try {
+                const res = await fetch('http://localhost:5000/api/energy/');
 
+                const data = await res.json();
+
+                if (data.success) {
+                    setPredict(data.data)
+                    console.log(data)
+                }
+            } catch (err) {
+                console.log(err)
+            }
+        }
     }, [])
     return (
         <div className="report-containner">

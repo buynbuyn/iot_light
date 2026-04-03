@@ -3,6 +3,6 @@ const { PredictApi } = require("../api/prediction.js");
 
 const router = express.Router();
 
-router.get("/:id", PredictApi.getPredict);
+router.get("/:id", PredictApi.getPredictById);
 
 module.exports = router;
