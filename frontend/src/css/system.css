@@ -4,7 +4,6 @@
     background-color: #f8fafc;
     /* Xóa height: 2000px; */
     min-height: 100vh; /* Đảm bảo luôn phủ hết màn hình */
-    overflow-y: auto;  /* Cho phép cuộn dọc */
 }
 
 .system-title {
