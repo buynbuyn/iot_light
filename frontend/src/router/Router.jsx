@@ -4,6 +4,7 @@ import AdminLayout from "../layouts/AdminLayout";
 import Dashboard from "../pages/Dashboard";
 import AlertPage from "../pages/AlertsPage";
 import ReportPage from "../pages/Report";
+import SystemManagement from "../pages/Systemmanagement";
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
       {
         path: "reports",      
         element: <ReportPage />
+      },
+      {
+        path: "system-management",      
+        element: <SystemManagement />
       }
     ]
   }

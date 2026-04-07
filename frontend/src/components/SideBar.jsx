@@ -5,7 +5,7 @@ import "../main.css";
 
 const NAV_ITEMS = [
     { id: "overview", icon: <FaHome />, label: "Tổng quan", path: "/" },
-    { id: "system", icon: <FaCog />, label: "Quản lý Hệ thống", path: "/system" },
+    { id: "system", icon: <FaCog />, label: "Quản lý Hệ thống", path: "/system-management" },
     { id: "monitor", icon: <FaDatabase />, label: "Giám sát dữ liệu", path: "/monitor" },
     { id: "alerts", icon: <FaBell />, label: "Cảnh báo & Sự cố", path: "/alerts" },
     { id: "reports", icon: <FaChartBar />, label: "Báo cáo phân tích", path: "/reports" },

@@ -137,5 +137,40 @@ router.post("/alert/raw", async (req, res) => {
     });
   }
 });
+// ================= GET ALL ZONES =================
+router.get("/zones", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT zone_id, zone_name, area_type, rated_power, status 
+      FROM zones 
+      ORDER BY zone_id ASC;
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Get zones error:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Lỗi khi lấy dữ liệu Zones", 
+      error: error.message 
+    });
+  }
+});
 
+// ================= GET ALL STREET LIGHTS =================
+router.get("/street-lights", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT *
+      FROM street_lights  
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Get street lights error:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Lỗi khi lấy dữ liệu Street Lights", 
+      error: error.message 
+    });
+  }
+});
 module.exports = router;
