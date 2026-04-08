@@ -16,7 +16,7 @@ export default function ReportPage() {
     setTimeout(() => setLoaded(true), 100);
   }, []);
 
-  const totalCurrent = predict.reduce((s, i) => s + Number(i.current), 0);
+  const totalCurrent = predict.reduce((s, i) => s + Number(i.current_price), 0);
   const totalPredicted = predict.reduce((s, i) => s + Number(i.predicted_cost), 0);
   const delta = (((totalPredicted - totalCurrent) / totalCurrent) * 100).toFixed(1);
 
@@ -41,7 +41,7 @@ export default function ReportPage() {
                 <span className="rp-stat-icon">💰</span> CHI PHÍ HIỆN TẠI
               </p>
               <p className="rp-stat-value">
-                {totalCurrent.toFixed(1)}
+                {totalCurrent.toLocaleString("vi-VN")}
                 <span className="rp-stat-unit"> Tr. VND</span>
               </p>
             </div>
@@ -54,7 +54,7 @@ export default function ReportPage() {
                 <span className="rp-stat-icon">📈</span> DỰ BÁO THÁNG TỚI
               </p>
               <p className="rp-stat-value">
-                {totalPredicted.toFixed(1)}
+                {totalPredicted.toLocaleString("vi-VN")}
                 <span className="rp-stat-unit"> Tr. VND</span>
               </p>
               <p className="rp-stat-delta rp-stat-delta--up">
@@ -70,7 +70,7 @@ export default function ReportPage() {
         <div className="rp-section-head">
           <h2 className="rp-section-title">So sánh hiệu suất Khu vực</h2>
           <p className="rp-section-sub">
-            Dữ liệu tổng hợp từ 3 trọng điểm đô thị (energy_summary &amp; prediction_history)
+            Dữ liệu tổng hợp từ 3 trọng điểm đô thị
           </p>
         </div>
 
@@ -102,10 +102,10 @@ export default function ReportPage() {
                     </div>
                   </div>
                 </td>
-                <td>{Number(row.total_wh).toLocaleString("vi-VN")}</td>
-                <td className="rp-bold">{Number(row.current).toFixed(1)}</td>
-                <td>{Number(row.predicted_wh).toLocaleString("vi-VN")}</td>
-                <td className="rp-bold rp-gold">{Number(row.predicted_cost).toFixed(1)}</td>
+                <td>{Number(row.total_wh).toFixed(3)}</td>
+                <td className="rp-bold">{Number(row.current_price).toLocaleString("vi-VN")}</td>
+                <td>{Number(row.predicted_wh).toFixed(3)}</td>
+                <td className="rp-bold rp-gold">{Number(row.predicted_cost).toLocaleString("vi-VN")}</td>
                 <td>
                   <span
                     className={`rp-badge ${
@@ -136,7 +136,33 @@ export default function ReportPage() {
             <span className="rp-legend-dot rp-legend-dot--pred" /> Dự báo
           </div>
         </div>
+        <div className="rp-chart">
+  {predict.map((row, i) => {
+    const max = Math.max(
+      ...predict.map(r => Math.max(Number(r.current_price), Number(r.predicted_cost)))
+    );
 
+    const actualHeight = (Number(row.current_price) / max) * 100;
+    const predictedHeight = (Number(row.predicted_cost) / max) * 100;
+
+    return (
+      <div className="rp-bar-group" key={i}>
+        <div className="rp-bars">
+          <div
+            className="rp-bar rp-bar--actual"
+            style={{ height: `${actualHeight}%` }}
+          />
+          <div
+            className="rp-bar rp-bar--pred"
+            style={{ height: `${predictedHeight}%` }}
+          />
+        </div>
+
+        <p className="rp-bar-label">{row.zone_name}</p>
+      </div>
+    );
+  })}
+</div>
       </section>
     </div>
   );

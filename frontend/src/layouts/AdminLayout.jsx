@@ -5,7 +5,7 @@ import React from "react";
 
 export default function AdminLayout() {
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
+    <div style={{ display: "flex" }}>
 
       <Sidebar />
 
