@@ -1,4 +1,5 @@
 const express = require("express");
+const http = require("http");
 const cors = require("cors");
 require("dotenv").config();
 const { moveExpiredAlerts } = require("./cron/movealerts");
@@ -13,6 +14,7 @@ const anomalyHistoryRoutes = require("./routes/anomaly_historyRoutes");
 const sensorRoutes = require("./api/sensor");
 const energyRoutes = require("./routes/energyRoutes");
 const predictRoutes = require("./routes/predictRoutes")
+const setupSocket = require('./routes/sensorRoutes');
 const iotRoutes = require("./routes/iotRoutes");
 const app = express();
 
@@ -95,6 +97,8 @@ listener.on("notification", async (msg) => {
         console.error("❌ Listener process error:", err);
     }
 });
+const server = http.createServer(app);
+setupSocket(server);
 // Test kết nối DB
 (async () => {
     try {
@@ -107,4 +111,4 @@ listener.on("notification", async (msg) => {
 })();
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

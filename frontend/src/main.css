@@ -21,18 +21,6 @@
   --t2: 0.28s;
   --t3: 0.45s;
 }
-
-/* ── Reset ── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html, body, #root {
-  height: 100%;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  background: var(--body-bg);
-  color: var(--text);
-  overflow: hidden;
-}
-
 /* ════════════════════════════
    APP SHELL
 ════════════════════════════ */

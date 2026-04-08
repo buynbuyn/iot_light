@@ -3,6 +3,7 @@ import { createBrowserRouter } from "react-router-dom";
 import AdminLayout from "../layouts/AdminLayout";
 import Dashboard from "../pages/Dashboard";
 import AlertPage from "../pages/AlertsPage";
+import MonitorPage from "../pages/Monitor";
 import ReportPage from "../pages/Report";
 
 const router = createBrowserRouter([
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
       {
         path: "alerts",      
         element: <AlertPage />
+      },
+      {
+        path: "monitor",      
+        element: <MonitorPage />
       },
       {
         path: "reports",      
