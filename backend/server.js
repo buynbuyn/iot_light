@@ -27,7 +27,6 @@ app.get("/", (req, res) => {
     res.send("Server Backend đang chạy cực ngon!");
 });
 
-// Dashboard fake data
 app.get("/api/dashboard", (req, res) => {
     res.json({
         devices_online: 1240,
