@@ -343,7 +343,7 @@ body {
     margin: 0;
 }
 .model-plot-img {
-    width: 100%; /* Ảnh giãn ra hết cỡ */
+    width: 90%; /* Ảnh giãn ra hết cỡ */
     height: auto;
     display: block;
     cursor: zoom-in;
