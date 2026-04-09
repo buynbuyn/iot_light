@@ -31,13 +31,13 @@ const PredictApi = {
 
             const result = await pool.query(`SELECT price_per_kwh FROM electricity_price ORDER BY price_id DESC`);
   
-            const price = parseFloat(result.rows[0].price_per_kwh, 0);
+            const price = result.rows[0].price_per_kwh;
 
             const { rows } = await pool.query(`
                 SELECT p.*, 
                     z.*, 
                     e.*,
-                    (predicted_wh - total_wh)%100 as deviation,
+                    (p.predicted_wh - e.total_wh) as deviation,
                     SUM(e.total_wh) as current,
                     (e.total_wh * $2) as current_price,
                     SUM(p.predicted_cost) as cost,

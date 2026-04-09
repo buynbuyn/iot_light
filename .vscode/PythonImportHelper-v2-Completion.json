@@ -101,6 +101,89 @@
         "documentation": {}
     },
     {
+        "label": "LinearRegression",
+        "importPath": "sklearn.linear_model",
+        "description": "sklearn.linear_model",
+        "isExtraImport": true,
+        "detail": "sklearn.linear_model",
+        "documentation": {}
+    },
+    {
+        "label": "LinearRegression",
+        "importPath": "sklearn.linear_model",
+        "description": "sklearn.linear_model",
+        "isExtraImport": true,
+        "detail": "sklearn.linear_model",
+        "documentation": {}
+    },
+    {
+        "label": "matplotlib.pyplot",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "matplotlib.pyplot",
+        "description": "matplotlib.pyplot",
+        "detail": "matplotlib.pyplot",
+        "documentation": {}
+    },
+    {
+        "label": "matplotlib.dates",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "matplotlib.dates",
+        "description": "matplotlib.dates",
+        "detail": "matplotlib.dates",
+        "documentation": {}
+    },
+    {
+        "label": "mean_squared_error",
+        "importPath": "sklearn.metrics",
+        "description": "sklearn.metrics",
+        "isExtraImport": true,
+        "detail": "sklearn.metrics",
+        "documentation": {}
+    },
+    {
+        "label": "mean_squared_error",
+        "importPath": "sklearn.metrics",
+        "description": "sklearn.metrics",
+        "isExtraImport": true,
+        "detail": "sklearn.metrics",
+        "documentation": {}
+    },
+    {
+        "label": "RealDictCursor",
+        "importPath": "psycopg2.extras",
+        "description": "psycopg2.extras",
+        "isExtraImport": true,
+        "detail": "psycopg2.extras",
+        "documentation": {}
+    },
+    {
+        "label": "RealDictCursor",
+        "importPath": "psycopg2.extras",
+        "description": "psycopg2.extras",
+        "isExtraImport": true,
+        "detail": "psycopg2.extras",
+        "documentation": {}
+    },
+    {
+        "label": "RealDictCursor",
+        "importPath": "psycopg2.extras",
+        "description": "psycopg2.extras",
+        "isExtraImport": true,
+        "detail": "psycopg2.extras",
+        "documentation": {}
+    },
+    {
+        "label": "warnings",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "warnings",
+        "description": "warnings",
+        "detail": "warnings",
+        "documentation": {}
+    },
+    {
         "label": "DB_DIRECT_URL",
         "kind": 5,
         "importPath": "backend.ml.anomaly_detection",
@@ -287,6 +370,123 @@
         "description": "backend.ml.energyModel",
         "peekOfCode": "predicted_wh = model.predict(next_index)[0]\nprint(json.dumps({\n    \"predicted_wh\": round(predicted_wh, 2),\n    \"model_used\": \"Linear Regression\"\n}))",
         "detail": "backend.ml.energyModel",
+        "documentation": {}
+    },
+    {
+        "label": "fetch_data",
+        "kind": 2,
+        "importPath": "backend.ml.tempCodeRunnerFile",
+        "description": "backend.ml.tempCodeRunnerFile",
+        "peekOfCode": "def fetch_data(conn_str: str) -> tuple[pd.DataFrame, pd.DataFrame]:\n    conn = psycopg2.connect(conn_str)\n    with conn.cursor(cursor_factory=RealDictCursor) as cur:\n        cur.execute(\"\"\"\n            SELECT zone_id, month::date AS month,\n                   total_wh::float AS total_wh,\n                   total_cost::float AS total_cost\n            FROM energy_summary\n            ORDER BY zone_id, month\n        \"\"\")",
+        "detail": "backend.ml.tempCodeRunnerFile",
+        "documentation": {}
+    },
+    {
+        "label": "get_price",
+        "kind": 2,
+        "importPath": "backend.ml.tempCodeRunnerFile",
+        "description": "backend.ml.tempCodeRunnerFile",
+        "peekOfCode": "def get_price(df_prices: pd.DataFrame, date: pd.Timestamp) -> float:\n    subset = df_prices[df_prices['effective_date'] <= date]\n    if subset.empty:\n        return df_prices['price_per_kwh'].iloc[0]\n    return subset.sort_values('effective_date', ascending=False).iloc[0]['price_per_kwh']\n# ==========================================\n# 2. PHÂN TÍCH & VẼ BIỂU ĐỒ CHO 1 ZONE\n# ==========================================\ndef analyze_zone(ax, zone, zone_data: pd.DataFrame, df_prices: pd.DataFrame) -> dict | None:\n    zone_data = zone_data.sort_values('month').reset_index(drop=True)",
+        "detail": "backend.ml.tempCodeRunnerFile",
+        "documentation": {}
+    },
+    {
+        "label": "analyze_zone",
+        "kind": 2,
+        "importPath": "backend.ml.tempCodeRunnerFile",
+        "description": "backend.ml.tempCodeRunnerFile",
+        "peekOfCode": "def analyze_zone(ax, zone, zone_data: pd.DataFrame, df_prices: pd.DataFrame) -> dict | None:\n    zone_data = zone_data.sort_values('month').reset_index(drop=True)\n    if len(zone_data) < 2:\n        ax.set_title(f'ZONE {zone}\\n(Không đủ dữ liệu)', fontsize=12, color='gray')\n        ax.axis('off')\n        return None\n    # Cửa sổ N_MONTHS gần nhất để train/test\n    recent = zone_data.tail(N_MONTHS).reset_index(drop=True)\n    recent['time_index'] = np.arange(len(recent))\n    train_data = recent.iloc[:-1].copy()   # 4 tháng train",
+        "detail": "backend.ml.tempCodeRunnerFile",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "backend.ml.tempCodeRunnerFile",
+        "description": "backend.ml.tempCodeRunnerFile",
+        "peekOfCode": "def main():\n    print(\"Dang ket noi Neon va lay du lieu ...\")\n    df_energy, df_prices = fetch_data(NEON_CONNECTION_STRING)\n    all_months = sorted(df_energy['month'].dt.strftime('%m/%Y').unique())\n    print(f\"Tat ca cac thang trong DB: {all_months}\")\n    zones  = sorted(df_energy['zone_id'].unique())\n    ncols  = min(3, len(zones))\n    nrows  = (len(zones) + ncols - 1) // ncols\n    fig, axes = plt.subplots(nrows, ncols,\n                             figsize=(7 * ncols, 6 * nrows),",
+        "detail": "backend.ml.tempCodeRunnerFile",
+        "documentation": {}
+    },
+    {
+        "label": "NEON_CONNECTION_STRING",
+        "kind": 5,
+        "importPath": "backend.ml.tempCodeRunnerFile",
+        "description": "backend.ml.tempCodeRunnerFile",
+        "peekOfCode": "NEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n)\nN_MONTHS   = 5    # Cửa sổ train+test: 4 tháng train, 1 tháng test\nMA_WINDOW  = 3    # Cửa sổ Moving Average để làm mượt\nOUTPUT_PNG = \"energy_forecast.png\"\n# ==========================================\n# 1. LẤY DỮ LIỆU TỪ NEON\n# ==========================================\ndef fetch_data(conn_str: str) -> tuple[pd.DataFrame, pd.DataFrame]:",
+        "detail": "backend.ml.tempCodeRunnerFile",
+        "documentation": {}
+    },
+    {
+        "label": "OUTPUT_PNG",
+        "kind": 5,
+        "importPath": "backend.ml.tempCodeRunnerFile",
+        "description": "backend.ml.tempCodeRunnerFile",
+        "peekOfCode": "OUTPUT_PNG = \"energy_forecast.png\"\n# ==========================================\n# 1. LẤY DỮ LIỆU TỪ NEON\n# ==========================================\ndef fetch_data(conn_str: str) -> tuple[pd.DataFrame, pd.DataFrame]:\n    conn = psycopg2.connect(conn_str)\n    with conn.cursor(cursor_factory=RealDictCursor) as cur:\n        cur.execute(\"\"\"\n            SELECT zone_id, month::date AS month,\n                   total_wh::float AS total_wh,",
+        "detail": "backend.ml.tempCodeRunnerFile",
+        "documentation": {}
+    },
+    {
+        "label": "conn",
+        "kind": 5,
+        "importPath": "backend.ml.testNeon",
+        "description": "backend.ml.testNeon",
+        "peekOfCode": "conn = psycopg2.connect(\"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\")\nwith conn.cursor(cursor_factory=RealDictCursor) as cur:\n    # Xem cấu trúc bảng\n    cur.execute(\"\"\"\n        SELECT column_name, data_type \n        FROM information_schema.columns \n        WHERE table_name = 'energy_summary'\n    \"\"\")\n    print([dict(r) for r in cur.fetchall()])\n    # Xem dữ liệu raw",
+        "detail": "backend.ml.testNeon",
+        "documentation": {}
+    },
+    {
+        "label": "fetch_data",
+        "kind": 2,
+        "importPath": "backend.ml.trainModel",
+        "description": "backend.ml.trainModel",
+        "peekOfCode": "def fetch_data(conn_str: str) -> tuple[pd.DataFrame, pd.DataFrame]:\n    conn = psycopg2.connect(conn_str)\n    with conn.cursor(cursor_factory=RealDictCursor) as cur:\n        cur.execute(\"\"\"\n            SELECT zone_id, month::date AS month,\n                   total_wh::float AS total_wh,\n                   total_cost::float AS total_cost\n            FROM energy_summary\n            ORDER BY zone_id, month\n        \"\"\")",
+        "detail": "backend.ml.trainModel",
+        "documentation": {}
+    },
+    {
+        "label": "get_price",
+        "kind": 2,
+        "importPath": "backend.ml.trainModel",
+        "description": "backend.ml.trainModel",
+        "peekOfCode": "def get_price(df_prices: pd.DataFrame, date: pd.Timestamp) -> float:\n    subset = df_prices[df_prices['effective_date'] <= date]\n    if subset.empty:\n        return df_prices['price_per_kwh'].iloc[0]\n    return subset.sort_values('effective_date', ascending=False).iloc[0]['price_per_kwh']\n# ==========================================\n# 2. PHÂN TÍCH & VẼ BIỂU ĐỒ CHO 1 ZONE\n# ==========================================\ndef analyze_zone(ax, zone, zone_data: pd.DataFrame, df_prices: pd.DataFrame) -> dict | None:\n    zone_data = zone_data.sort_values('month').reset_index(drop=True)",
+        "detail": "backend.ml.trainModel",
+        "documentation": {}
+    },
+    {
+        "label": "analyze_zone",
+        "kind": 2,
+        "importPath": "backend.ml.trainModel",
+        "description": "backend.ml.trainModel",
+        "peekOfCode": "def analyze_zone(ax, zone, zone_data: pd.DataFrame, df_prices: pd.DataFrame) -> dict | None:\n    zone_data = zone_data.sort_values('month').reset_index(drop=True)\n    if len(zone_data) < 2:\n        ax.set_title(f'ZONE {zone}\\n(Không đủ dữ liệu)', fontsize=12, color='gray')\n        ax.axis('off')\n        return None\n    # Cửa sổ N_MONTHS gần nhất để train/test\n    recent = zone_data.tail(N_MONTHS).reset_index(drop=True)\n    recent['time_index'] = np.arange(len(recent))\n    train_data = recent.iloc[:-1].copy()   # 4 tháng train",
+        "detail": "backend.ml.trainModel",
+        "documentation": {}
+    },
+    {
+        "label": "main",
+        "kind": 2,
+        "importPath": "backend.ml.trainModel",
+        "description": "backend.ml.trainModel",
+        "peekOfCode": "def main():\n    print(\"Dang ket noi Neon va lay du lieu ...\")\n    df_energy, df_prices = fetch_data(NEON_CONNECTION_STRING)\n    all_months = sorted(df_energy['month'].dt.strftime('%m/%Y').unique())\n    print(f\"Tat ca cac thang trong DB: {all_months}\")\n    zones  = sorted(df_energy['zone_id'].unique())\n    ncols  = min(3, len(zones))\n    nrows  = (len(zones) + ncols - 1) // ncols\n    fig, axes = plt.subplots(nrows, ncols,\n                             figsize=(7 * ncols, 6 * nrows),",
+        "detail": "backend.ml.trainModel",
+        "documentation": {}
+    },
+    {
+        "label": "NEON_CONNECTION_STRING",
+        "kind": 5,
+        "importPath": "backend.ml.trainModel",
+        "description": "backend.ml.trainModel",
+        "peekOfCode": "NEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n)\nN_MONTHS   = 5    # Cửa sổ train+test: 4 tháng train, 1 tháng test\nMA_WINDOW  = 3    # Cửa sổ Moving Average để làm mượt\nOUTPUT_PNG = \"energy_forecast.png\"\n# ==========================================\n# 1. LẤY DỮ LIỆU TỪ NEON\n# ==========================================\ndef fetch_data(conn_str: str) -> tuple[pd.DataFrame, pd.DataFrame]:",
+        "detail": "backend.ml.trainModel",
+        "documentation": {}
+    },
+    {
+        "label": "OUTPUT_PNG",
+        "kind": 5,
+        "importPath": "backend.ml.trainModel",
+        "description": "backend.ml.trainModel",
+        "peekOfCode": "OUTPUT_PNG = \"energy_forecast.png\"\n# ==========================================\n# 1. LẤY DỮ LIỆU TỪ NEON\n# ==========================================\ndef fetch_data(conn_str: str) -> tuple[pd.DataFrame, pd.DataFrame]:\n    conn = psycopg2.connect(conn_str)\n    with conn.cursor(cursor_factory=RealDictCursor) as cur:\n        cur.execute(\"\"\"\n            SELECT zone_id, month::date AS month,\n                   total_wh::float AS total_wh,",
+        "detail": "backend.ml.trainModel",
         "documentation": {}
     },
     {
