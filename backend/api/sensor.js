@@ -72,7 +72,7 @@ router.post("/", async (req, res) => {
             });
 
             console.log(`✅ Zone ${zone_id} completed`);
-        }2
+        };
 
         console.log("🚀 Sending response...");
 
