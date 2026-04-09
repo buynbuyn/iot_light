@@ -1,11 +1,8 @@
-
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-require("./cron/movealerts");
-const {
-    updateEnergySummary
-} = require("./service/energyService");
+const { moveExpiredAlerts } = require("./cron/movealerts");
+const { updateEnergySummary } = require("./service/energyService");
 const { runAnomalyDetection } = require("./service/anomalyService");
 const pool = require("./db");
 const { Client } = require("pg");
@@ -16,7 +13,7 @@ const anomalyHistoryRoutes = require("./routes/anomaly_historyRoutes");
 const sensorRoutes = require("./api/sensor");
 const energyRoutes = require("./routes/energyRoutes");
 const predictRoutes = require("./routes/predictRoutes")
-
+const iotRoutes = require("./routes/iotRoutes");
 const app = express();
 
 // Middleware
@@ -43,6 +40,7 @@ app.use("/api/anomaly-history", anomalyHistoryRoutes);
 app.use("/api/sensors", sensorRoutes);
 app.use("/api/energy", energyRoutes);
 app.use("/api/predict", predictRoutes)
+app.use("/api", iotRoutes);
 
 // LISTEN/NOTIFY DB (sensor trigger)
 const listener = new Client({ connectionString: process.env.DATABASE_DIRECT_URL });
