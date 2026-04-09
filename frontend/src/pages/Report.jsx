@@ -19,6 +19,7 @@ export default function ReportPage() {
   const totalCurrent = predict.reduce((s, i) => s + Number(i.current_price), 0);
   const totalPredicted = predict.reduce((s, i) => s + Number(i.predicted_cost), 0);
   const delta = (((totalPredicted - totalCurrent) / totalCurrent) * 100).toFixed(1);
+  
 
   return (
     <div className={`rp-root${loaded ? " rp-loaded" : ""}`}>
@@ -41,8 +42,7 @@ export default function ReportPage() {
                 <span className="rp-stat-icon">💰</span> CHI PHÍ HIỆN TẠI
               </p>
               <p className="rp-stat-value">
-                {totalCurrent.toLocaleString("vi-VN")}
-                <span className="rp-stat-unit"> Tr. VND</span>
+                {totalCurrent.toLocaleString("vi-VN").split(".").slice(0, 2).join(".")}
               </p>
             </div>
           </div>
@@ -54,8 +54,7 @@ export default function ReportPage() {
                 <span className="rp-stat-icon">📈</span> DỰ BÁO THÁNG TỚI
               </p>
               <p className="rp-stat-value">
-                {totalPredicted.toLocaleString("vi-VN")}
-                <span className="rp-stat-unit"> Tr. VND</span>
+                {totalPredicted.toLocaleString("vi-VN").split(".").slice(0, 2).join(".")}
               </p>
               <p className="rp-stat-delta rp-stat-delta--up">
                 ▲ +{delta}% (Dự báo AI)
@@ -79,9 +78,9 @@ export default function ReportPage() {
             <tr>
               <th>KHU VỰC QUẢN LÝ</th>
               <th>TIÊU THỤ (KWH)</th>
-              <th>HIỆN TẠI (TRIỆU)</th>
+              <th>HIỆN TẠI</th>
               <th>DỰ BÁO (KWH)</th>
-              <th>DỰ BÁO (TRIỆU)</th>
+              <th>DỰ BÁO</th>
               <th>ĐỘ LỆCH (%)</th>
             </tr>
           </thead>
@@ -102,18 +101,18 @@ export default function ReportPage() {
                     </div>
                   </div>
                 </td>
-                <td>{Number(row.total_wh).toFixed(3)}</td>
-                <td className="rp-bold">{Number(row.current_price).toLocaleString("vi-VN")}</td>
-                <td>{Number(row.predicted_wh).toFixed(3)}</td>
-                <td className="rp-bold rp-gold">{Number(row.predicted_cost).toLocaleString("vi-VN")}</td>
+                <td>{Number(row.total_wh).toFixed(3).split(".")[0] /1000}</td>
+                <td className="rp-bold">{Number(row.current_price).toLocaleString("vi-VN").split(".").slice(0, 2).join(".")}</td>
+                <td>{Number(row.predicted_wh).toFixed(3).split(".")[0] /1000}</td>
+                <td className="rp-bold rp-gold">{Number(row.predicted_cost).toLocaleString("vi-VN").split(".").slice(0, 2).join(".")}</td>
                 <td>
                   <span
                     className={`rp-badge ${
                       row.deviation > 0 ? "rp-badge--neg" : "rp-badge--pos"
                     }`}
                   >
-                    {row.deviation > 0 ? "+" : ""}
-                    {row.deviation}%
+                    {row.deviation > 0 ? "+" : "-"}
+                    {Math.abs(row.deviation).toString().slice(0, 2)}%
                   </span>
                 </td>
               </tr>

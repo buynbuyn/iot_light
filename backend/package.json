@@ -19,6 +19,7 @@
     "node-cron": "^4.2.1",
     "pg": "^8.20.0",
     "python-shell": "^5.0.0",
+    "redis": "^5.11.0",
     "router": "^2.2.0"
   },
   "devDependencies": {

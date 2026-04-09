@@ -41,6 +41,7 @@ app.use("/api/sensors", sensorRoutes);
 app.use("/api/energy", energyRoutes);
 app.use("/api/predict", predictRoutes)
 app.use("/api", iotRoutes);
+
 // LISTEN/NOTIFY DB (sensor trigger)
 const listener = new Client({ connectionString: process.env.DATABASE_DIRECT_URL });
 (async () => {
