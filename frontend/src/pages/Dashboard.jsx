@@ -4,7 +4,7 @@ import { Lightbulb, Map, AlertTriangle, Zap } from 'lucide-react';
 import { io } from "socket.io-client";
 import '../css/dashboard.css'; 
 
-const socket = io("http://localhost:5001");
+const socket = io("http://localhost:5000");
 
 export default function Dashboard() {
     const [data, setData] = useState({

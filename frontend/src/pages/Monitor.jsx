@@ -4,7 +4,7 @@ import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Zap, Sun, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import "../css/monitor.css"; 
 
-const socket = io("http://localhost:5001");
+const socket = io("http://localhost:5000");
 
 const Monitor = () => {
   const [logs, setLogs] = useState([]);
