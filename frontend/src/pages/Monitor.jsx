@@ -4,7 +4,7 @@ import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Zap, Sun, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import "../css/monitor.css"; 
 
-const socket = io("http://localhost:5000");
+const socket = io("http://localhost:5001");
 
 const Monitor = () => {
   const [logs, setLogs] = useState([]);
@@ -171,8 +171,6 @@ const Monitor = () => {
           <h3>Bảng nhật ký cảm biến</h3>
           <div className="monitor-table-tabs">
             <button className="active">Tất cả</button>
-            <button>Cảnh báo</button>
-            <button>Lỗi</button>
           </div>
         </div>
         
