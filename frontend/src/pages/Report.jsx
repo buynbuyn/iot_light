@@ -136,33 +136,38 @@ export default function ReportPage() {
           </div>
         </div>
         <div className="rp-chart">
-  {predict.map((row, i) => {
-    const max = Math.max(
-      ...predict.map(r => Math.max(Number(r.current_price), Number(r.predicted_cost)))
-    );
+          {predict.map((row, i) => {
+            const max = Math.max(
+              ...predict.map(r => Math.max(Number(r.current_price), Number(r.predicted_cost)))
+            );
 
-    const actualHeight = (Number(row.current_price) / max) * 100;
-    const predictedHeight = (Number(row.predicted_cost) / max) * 100;
+            const actualHeight = (Number(row.current_price) / max) * 100;
+            const predictedHeight = (Number(row.predicted_cost) / max) * 100;
 
-    return (
-      <div className="rp-bar-group" key={i}>
-        <div className="rp-bars">
-          <div
-            className="rp-bar rp-bar--actual"
-            style={{ height: `${actualHeight}%` }}
-          />
-          <div
-            className="rp-bar rp-bar--pred"
-            style={{ height: `${predictedHeight}%` }}
-          />
+            return (
+              <div className="rp-bar-group" key={i}>
+                <div className="rp-bars">
+                  <div
+                    className="rp-bar rp-bar--actual"
+                    style={{ height: `${actualHeight}%` }}
+                  />
+                  <div
+                    className="rp-bar rp-bar--pred"
+                    style={{ height: `${predictedHeight}%` }}
+                  />
+                </div>
+
+                <p className="rp-bar-label">{row.zone_name}</p>
+              </div>
+            );
+          })}
         </div>
-
-        <p className="rp-bar-label">{row.zone_name}</p>
-      </div>
-    );
-  })}
-</div>
       </section>
+
+      <section className="rp-section rp-animate" style={{ "--delay": "0.25s" }}>
+          <img style={{height: "400px", width: "900px"}} src="./energy_forecast.png" />
+      </section>
+
     </div>
   );
 }
