@@ -70,7 +70,7 @@ for log_id in log_ids:
     # Z-Score Manual (Dùng scaler để tính nhanh thay vì gọi thư viện scipy)
     # Scaler lưu mean và scale (std), z = (x - mean) / std
     z_scores = np.abs(new_scaled) 
-    z_anomaly = (z_scores > 3.5).any() # Ngưỡng 3.5 như cũ
+    z_anomaly = (z_scores > 1.5).any() # Ngưỡng 
 
     if iso_anomaly or z_anomaly:
         print(f"Anomaly Detected for Log {log_id}")
