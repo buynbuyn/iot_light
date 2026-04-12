@@ -12,7 +12,7 @@ const fetchLatestLogs = async () => {
       JOIN zones z ON sl.zone_id = z.zone_id
       LEFT JOIN anomaly_history ah ON sl.log_id = ah.log_id
       WHERE sl.motion_detected = true
-      ORDER BY sl.timestamp DESC LIMIT 10;
+      ORDER BY sl.timestamp DESC ;
     `;
     const res = await pool.query(query);
     return res.rows;
