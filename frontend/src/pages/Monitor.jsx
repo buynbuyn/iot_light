@@ -29,7 +29,6 @@ const Monitor = () => {
 
     socket.on('updateData', (data) => {
       setLogs(data.logs);
-      setCurrentPage(1);
 
       setChartData(prevData => {
         const latestLog = data.logs[0];
