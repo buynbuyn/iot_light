@@ -51,32 +51,35 @@ const listener = new Client({ connectionString: process.env.DATABASE_DIRECT_URL 
 listener.on("notification", async (msg) => {
     try {
         const logId = parseInt(msg.payload);
-        await moveExpiredAlerts();
-        runAnomalyDetection(logId);
+        console.log(`🔔 Nhận dữ liệu khu vực mới - Log ID: ${logId}`);
 
+        // QUAN TRỌNG: Phải có await để Python xử lý xong từng khu một
+        await runAnomalyDetection(logId);
+
+        // Các bước sau giữ nguyên nhưng nên bọc trong check tồn tại
         const result = await pool.query(
             `SELECT zone_id, power_consumption, timestamp FROM sensor_logs WHERE log_id = $1`,
             [logId]
         );
 
-        if (result.rows.length === 0) return;
+        if (result.rows.length > 0) {
+            const log = result.rows[0];
+            await updateEnergySummary({
+                zone_id: log.zone_id,
+                power_consumption: log.power_consumption,
+                timestamp: log.timestamp
+            });
+            console.log(`✅ Đã cập nhật Energy Summary cho Khu: ${log.zone_id}`);
+        }
 
-        const log = result.rows[0];
-        await updateEnergySummary({
-            zone_id: log.zone_id,
-            power_consumption: log.power_consumption,
-            timestamp: log.timestamp
-        });
-
+        // Chỉ emit socket sau khi đã xử lý xong dữ liệu
         if (io) {
-            const logs = await fetchLatestLogs();
             const dashboardData = await fetchDashboardData();
-            io.emit('updateData', { logs });
             io.emit('updateDashboardData', dashboardData);
         }
 
     } catch (err) {
-        console.error("Listener process error:", err);
+        console.error("❌ Lỗi xử lý khu vực:", err);
     }
 });
 

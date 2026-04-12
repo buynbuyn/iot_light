@@ -1,15 +1,30 @@
 import psycopg2
 import pandas as pd
 import sys
+import os
+import sys
+import joblib
 import joblib
 import numpy as np
 
 # Load model đã train
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Load model: Kết hợp BASE_DIR với folder models
 try:
-    model = joblib.load('anomaly_model.pkl')
-    scaler = joblib.load('scaler.pkl')
-except:
-    print("Error: Model files not found. Run train_anomaly.py first.")
+    # Nếu folder models nằm TRONG thư mục ml, dùng đường dẫn này:
+    model_path = os.path.join(BASE_DIR, "models", "anomaly_model.pkl")
+    scaler_path = os.path.join(BASE_DIR, "models", "scaler.pkl") 
+    
+    # Kiểm tra xem file có tồn tại thật không trước khi load
+    if not os.path.exists(model_path) or not os.path.exists(scaler_path):
+        raise FileNotFoundError(f"Không tìm thấy file tại: {model_path} hoặc {scaler_path}")
+
+    model = joblib.load(model_path)
+    scaler = joblib.load(scaler_path)
+    print(" Models loaded successfully!")
+except Exception as e:
+    print(f"Error: {e}")
     sys.exit(1)
 
 DB_DIRECT_URL = "postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require"
@@ -48,7 +63,7 @@ for log_id in log_ids:
 
     # --- 2. DÙNG MODEL ĐÃ TRAIN (Isolation Forest & Z-Score) ---
     new_scaled = scaler.transform(df_new)
-    
+
     # Isolation Forest Prediction
     iso_anomaly = (model.predict(new_scaled)[0] == -1)
 
@@ -58,12 +73,12 @@ for log_id in log_ids:
     z_anomaly = (z_scores > 3.5).any() # Ngưỡng 3.5 như cũ
 
     if iso_anomaly or z_anomaly:
-        print(f"🚨 Anomaly Detected for Log {log_id}")
+        print(f"Anomaly Detected for Log {log_id}")
         cur.execute("INSERT INTO alerts (zone_id, alert_type, detected_time, severity, status) VALUES (%s, %s, %s, %s, %s)", 
                    (zone_id, "Energy Anomaly", detected_time, "medium", "unresolved"))
         cur.execute("UPDATE zones SET status = 'inactive' WHERE zone_id = %s", (zone_id,))
     else:
-        print(f"✅ Log {log_id} is Normal")
+        print(f"Log {log_id} is Normal")
 
 conn.commit()
 conn.close()
