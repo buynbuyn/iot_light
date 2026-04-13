@@ -88,8 +88,8 @@ print(json.dumps({
     "zone_used": str(zone_id),
 
     "evaluation": {
-        "mse": round(float(mse), 2),
-        "test_accuracy": round(float(avg_accuracy), 2),
+        "mse": float(mse),
+        "avg_accuracy": float(avg_accuracy),
         "train_accuracy_from_pkl": round(float(saved_train_accuracy), 2),
         "status": threshold_status
     },
