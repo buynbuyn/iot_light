@@ -5,7 +5,6 @@ import pickle
 import pandas as pd
 import numpy as np
 from sklearn.metrics import mean_squared_error
-from sklearn.linear_model import LinearRegression
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PKL_PATH = os.path.join(BASE_DIR, "models", "trainmodel.pkl")
@@ -13,92 +12,53 @@ PKL_PATH = os.path.join(BASE_DIR, "models", "trainmodel.pkl")
 try:
     with open(PKL_PATH, 'rb') as f:
         bundle = pickle.load(f)
-
     data = json.loads(sys.argv[1])
 except Exception as e:
     print(json.dumps({"error": str(e)}))
     sys.exit(0)
 
 df = pd.DataFrame(data)
+df['total_wh'] = pd.to_numeric(df['total_wh'], errors='coerce').fillna(0)
+target_zone = str(df['zone_id'].iloc[0])
 
-if len(df) < 5:
-    print(json.dumps({
-        "predicted_wh": 0,
-        "error": "Not enough data (need >=5)"
-    }))
+models_dict = {str(k): v for k, v in bundle['models'].items()}
+
+if target_zone not in models_dict:
+    print(json.dumps({"error": f"Zone {target_zone} chưa được train"}))
     sys.exit(0)
 
-df['total_wh'] = pd.to_numeric(df['total_wh'], errors='coerce').fillna(0)
+zone_info = models_dict[target_zone]
+trained_model = zone_info['model'] 
+last_index = int(zone_info['last_time_index'])
+saved_accuracy = float(zone_info['avg_accuracy'])
 
-zone_id = df['zone_id'].iloc[0] if 'zone_id' in df.columns else None
+latest_actual = float(df['total_wh'].iloc[-1])
 
-if zone_id and 'models' in bundle and zone_id in bundle['models']:
-    saved_train_accuracy = bundle['models'][zone_id]['avg_accuracy']
-else:
-    first_zone = list(bundle['models'].keys())[0]
-    saved_train_accuracy = bundle['models'][first_zone]['avg_accuracy']
-    zone_id = first_zone
+current_pred = float(trained_model.predict([[last_index]])[0])
 
-df = df.sort_values('month').reset_index(drop=True)
-df['time_index'] = np.arange(len(df))
+bias = latest_actual - current_pred
 
-df['ma'] = df['total_wh'].rolling(window=3, min_periods=1).mean()
+next_index = last_index + 1
+trend_prediction = float(trained_model.predict([[next_index]])[0])
 
-model = LinearRegression()
+final_prediction = max(0, trend_prediction + bias)
 
-X = df[['time_index']]
-y = df['ma']   
+df['time_index'] = np.arange(last_index - len(df) + 1, last_index + 1)
+X_test = df[['time_index']]
+y_actual = df['total_wh'].values
+y_pred_trend = np.maximum(trained_model.predict(X_test), 0)
 
-model.fit(X, y)
-
-TEST_SIZE = 3
-test_df = df.iloc[-TEST_SIZE:]
-
-X_test = test_df[['time_index']]
-y_test = test_df['total_wh']
-
-y_pred_test = model.predict(X_test)
-y_pred_test = np.maximum(y_pred_test, 0)
-
-
-mse = mean_squared_error(y_test, y_pred_test)
-
-accuracy_list = []
-for actual, pred in zip(y_test, y_pred_test):
-    if actual == 0:
-        acc = 0
-    else:
-        acc = max(0, 100 - abs(actual - pred) / actual * 100)
-    accuracy_list.append(acc)
-
-avg_accuracy = np.mean(accuracy_list)
-
-if avg_accuracy >= (saved_train_accuracy * 0.9):
-    threshold_status = "Đạt ngưỡng (Ổn định)"
-else:
-    threshold_status = "Dưới ngưỡng (Cần train lại model gốc)"
-
-next_index = np.array([[len(df)]])
-next_pred = model.predict(next_index)[0]
-next_pred = max(next_pred, 0)
+mse = float(mean_squared_error(y_actual, y_pred_trend))
+avg_acc = float(np.mean([max(0, 100 - abs(a - p) / a * 100) if a > 0 else 0 for a, p in zip(y_actual, y_pred_trend)]))
 
 print(json.dumps({
-    "predicted_wh": round(float(next_pred), 2),
-    "model_used": "Linear Regression",
-    "zone_used": str(zone_id),
-
+    "predicted_wh": round(final_prediction, 2),
+    "model_used": "Linear Regression (Trend Following)",
+    "zone_used": target_zone,
     "evaluation": {
-        "mse": float(mse),
-        "avg_accuracy": float(avg_accuracy),
-        "train_accuracy_from_pkl": round(float(saved_train_accuracy), 2),
-        "status": threshold_status
-    },
-
-    "test_detail": [
-        {
-            "actual": round(float(a), 2),
-            "predicted": round(float(p), 2)
-        }
-        for a, p in zip(y_test, y_pred_test)
-    ]
+        "mse": round(mse, 2),
+        "avg_accuracy": round(avg_acc, 2),
+        "train_accuracy_from_pkl": round(saved_accuracy, 2),
+        "status": "Ổn định" if avg_acc > (saved_accuracy * 0.8) else "Lệch xu hướng (Cần train lại)"
+    }
 }))

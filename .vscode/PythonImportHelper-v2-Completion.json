@@ -96,22 +96,6 @@
         "documentation": {}
     },
     {
-        "label": "LinearRegression",
-        "importPath": "sklearn.linear_model",
-        "description": "sklearn.linear_model",
-        "isExtraImport": true,
-        "detail": "sklearn.linear_model",
-        "documentation": {}
-    },
-    {
-        "label": "LinearRegression",
-        "importPath": "sklearn.linear_model",
-        "description": "sklearn.linear_model",
-        "isExtraImport": true,
-        "detail": "sklearn.linear_model",
-        "documentation": {}
-    },
-    {
         "label": "warnings",
         "kind": 6,
         "isExtraImport": true,
@@ -136,6 +120,14 @@
         "importPath": "matplotlib.dates",
         "description": "matplotlib.dates",
         "detail": "matplotlib.dates",
+        "documentation": {}
+    },
+    {
+        "label": "LinearRegression",
+        "importPath": "sklearn.linear_model",
+        "description": "sklearn.linear_model",
+        "isExtraImport": true,
+        "detail": "sklearn.linear_model",
         "documentation": {}
     },
     {
@@ -246,7 +238,7 @@
         "kind": 5,
         "importPath": "backend.ml.energyModel",
         "description": "backend.ml.energyModel",
-        "peekOfCode": "PKL_PATH = os.path.join(BASE_DIR, \"models\", \"trainmodel.pkl\")\ntry:\n    with open(PKL_PATH, 'rb') as f:\n        bundle = pickle.load(f)\n    data = json.loads(sys.argv[1])\nexcept Exception as e:\n    print(json.dumps({\"error\": str(e)}))\n    sys.exit(0)\ndf = pd.DataFrame(data)\nif len(df) < 5:",
+        "peekOfCode": "PKL_PATH = os.path.join(BASE_DIR, \"models\", \"trainmodel.pkl\")\ntry:\n    with open(PKL_PATH, 'rb') as f:\n        bundle = pickle.load(f)\n    data = json.loads(sys.argv[1])\nexcept Exception as e:\n    print(json.dumps({\"error\": str(e)}))\n    sys.exit(0)\ndf = pd.DataFrame(data)\ndf['total_wh'] = pd.to_numeric(df['total_wh'], errors='coerce').fillna(0)",
         "detail": "backend.ml.energyModel",
         "documentation": {}
     },
@@ -255,7 +247,7 @@
         "kind": 5,
         "importPath": "backend.ml.energyModel",
         "description": "backend.ml.energyModel",
-        "peekOfCode": "df = pd.DataFrame(data)\nif len(df) < 5:\n    print(json.dumps({\n        \"predicted_wh\": 0,\n        \"error\": \"Not enough data (need >=5)\"\n    }))\n    sys.exit(0)\ndf['total_wh'] = pd.to_numeric(df['total_wh'], errors='coerce').fillna(0)\nzone_id = df['zone_id'].iloc[0] if 'zone_id' in df.columns else None\nif zone_id and 'models' in bundle and zone_id in bundle['models']:",
+        "peekOfCode": "df = pd.DataFrame(data)\ndf['total_wh'] = pd.to_numeric(df['total_wh'], errors='coerce').fillna(0)\ntarget_zone = str(df['zone_id'].iloc[0])\nmodels_dict = {str(k): v for k, v in bundle['models'].items()}\nif target_zone not in models_dict:\n    print(json.dumps({\"error\": f\"Zone {target_zone} chưa được train\"}))\n    sys.exit(0)\nzone_info = models_dict[target_zone]\ntrained_model = zone_info['model'] \nlast_index = int(zone_info['last_time_index'])",
         "detail": "backend.ml.energyModel",
         "documentation": {}
     },
@@ -264,151 +256,88 @@
         "kind": 5,
         "importPath": "backend.ml.energyModel",
         "description": "backend.ml.energyModel",
-        "peekOfCode": "df['total_wh'] = pd.to_numeric(df['total_wh'], errors='coerce').fillna(0)\nzone_id = df['zone_id'].iloc[0] if 'zone_id' in df.columns else None\nif zone_id and 'models' in bundle and zone_id in bundle['models']:\n    saved_train_accuracy = bundle['models'][zone_id]['avg_accuracy']\nelse:\n    first_zone = list(bundle['models'].keys())[0]\n    saved_train_accuracy = bundle['models'][first_zone]['avg_accuracy']\n    zone_id = first_zone\ndf = df.sort_values('month').reset_index(drop=True)\ndf['time_index'] = np.arange(len(df))",
+        "peekOfCode": "df['total_wh'] = pd.to_numeric(df['total_wh'], errors='coerce').fillna(0)\ntarget_zone = str(df['zone_id'].iloc[0])\nmodels_dict = {str(k): v for k, v in bundle['models'].items()}\nif target_zone not in models_dict:\n    print(json.dumps({\"error\": f\"Zone {target_zone} chưa được train\"}))\n    sys.exit(0)\nzone_info = models_dict[target_zone]\ntrained_model = zone_info['model'] \nlast_index = int(zone_info['last_time_index'])\nsaved_accuracy = float(zone_info['avg_accuracy'])",
         "detail": "backend.ml.energyModel",
         "documentation": {}
     },
     {
-        "label": "zone_id",
+        "label": "target_zone",
         "kind": 5,
         "importPath": "backend.ml.energyModel",
         "description": "backend.ml.energyModel",
-        "peekOfCode": "zone_id = df['zone_id'].iloc[0] if 'zone_id' in df.columns else None\nif zone_id and 'models' in bundle and zone_id in bundle['models']:\n    saved_train_accuracy = bundle['models'][zone_id]['avg_accuracy']\nelse:\n    first_zone = list(bundle['models'].keys())[0]\n    saved_train_accuracy = bundle['models'][first_zone]['avg_accuracy']\n    zone_id = first_zone\ndf = df.sort_values('month').reset_index(drop=True)\ndf['time_index'] = np.arange(len(df))\ndf['ma'] = df['total_wh'].rolling(window=3, min_periods=1).mean()",
+        "peekOfCode": "target_zone = str(df['zone_id'].iloc[0])\nmodels_dict = {str(k): v for k, v in bundle['models'].items()}\nif target_zone not in models_dict:\n    print(json.dumps({\"error\": f\"Zone {target_zone} chưa được train\"}))\n    sys.exit(0)\nzone_info = models_dict[target_zone]\ntrained_model = zone_info['model'] \nlast_index = int(zone_info['last_time_index'])\nsaved_accuracy = float(zone_info['avg_accuracy'])\nlatest_actual = float(df['total_wh'].iloc[-1])",
         "detail": "backend.ml.energyModel",
         "documentation": {}
     },
     {
-        "label": "df",
+        "label": "models_dict",
         "kind": 5,
         "importPath": "backend.ml.energyModel",
         "description": "backend.ml.energyModel",
-        "peekOfCode": "df = df.sort_values('month').reset_index(drop=True)\ndf['time_index'] = np.arange(len(df))\ndf['ma'] = df['total_wh'].rolling(window=3, min_periods=1).mean()\nmodel = LinearRegression()\nX = df[['time_index']]\ny = df['ma']   \nmodel.fit(X, y)\nTEST_SIZE = 3\ntest_df = df.iloc[-TEST_SIZE:]\nX_test = test_df[['time_index']]",
+        "peekOfCode": "models_dict = {str(k): v for k, v in bundle['models'].items()}\nif target_zone not in models_dict:\n    print(json.dumps({\"error\": f\"Zone {target_zone} chưa được train\"}))\n    sys.exit(0)\nzone_info = models_dict[target_zone]\ntrained_model = zone_info['model'] \nlast_index = int(zone_info['last_time_index'])\nsaved_accuracy = float(zone_info['avg_accuracy'])\nlatest_actual = float(df['total_wh'].iloc[-1])\ncurrent_pred = float(trained_model.predict([[last_index]])[0])",
         "detail": "backend.ml.energyModel",
         "documentation": {}
     },
     {
-        "label": "df['time_index']",
+        "label": "zone_info",
         "kind": 5,
         "importPath": "backend.ml.energyModel",
         "description": "backend.ml.energyModel",
-        "peekOfCode": "df['time_index'] = np.arange(len(df))\ndf['ma'] = df['total_wh'].rolling(window=3, min_periods=1).mean()\nmodel = LinearRegression()\nX = df[['time_index']]\ny = df['ma']   \nmodel.fit(X, y)\nTEST_SIZE = 3\ntest_df = df.iloc[-TEST_SIZE:]\nX_test = test_df[['time_index']]\ny_test = test_df['total_wh']",
+        "peekOfCode": "zone_info = models_dict[target_zone]\ntrained_model = zone_info['model'] \nlast_index = int(zone_info['last_time_index'])\nsaved_accuracy = float(zone_info['avg_accuracy'])\nlatest_actual = float(df['total_wh'].iloc[-1])\ncurrent_pred = float(trained_model.predict([[last_index]])[0])\nbias = latest_actual - current_pred\nnext_index = last_index + 1\ntrend_prediction = float(trained_model.predict([[next_index]])[0])\nfinal_prediction = max(0, trend_prediction + bias)",
         "detail": "backend.ml.energyModel",
         "documentation": {}
     },
     {
-        "label": "df['ma']",
+        "label": "trained_model",
         "kind": 5,
         "importPath": "backend.ml.energyModel",
         "description": "backend.ml.energyModel",
-        "peekOfCode": "df['ma'] = df['total_wh'].rolling(window=3, min_periods=1).mean()\nmodel = LinearRegression()\nX = df[['time_index']]\ny = df['ma']   \nmodel.fit(X, y)\nTEST_SIZE = 3\ntest_df = df.iloc[-TEST_SIZE:]\nX_test = test_df[['time_index']]\ny_test = test_df['total_wh']\ny_pred_test = model.predict(X_test)",
+        "peekOfCode": "trained_model = zone_info['model'] \nlast_index = int(zone_info['last_time_index'])\nsaved_accuracy = float(zone_info['avg_accuracy'])\nlatest_actual = float(df['total_wh'].iloc[-1])\ncurrent_pred = float(trained_model.predict([[last_index]])[0])\nbias = latest_actual - current_pred\nnext_index = last_index + 1\ntrend_prediction = float(trained_model.predict([[next_index]])[0])\nfinal_prediction = max(0, trend_prediction + bias)\ndf['time_index'] = np.arange(last_index - len(df) + 1, last_index + 1)",
         "detail": "backend.ml.energyModel",
         "documentation": {}
     },
     {
-        "label": "model",
+        "label": "last_index",
         "kind": 5,
         "importPath": "backend.ml.energyModel",
         "description": "backend.ml.energyModel",
-        "peekOfCode": "model = LinearRegression()\nX = df[['time_index']]\ny = df['ma']   \nmodel.fit(X, y)\nTEST_SIZE = 3\ntest_df = df.iloc[-TEST_SIZE:]\nX_test = test_df[['time_index']]\ny_test = test_df['total_wh']\ny_pred_test = model.predict(X_test)\ny_pred_test = np.maximum(y_pred_test, 0)",
+        "peekOfCode": "last_index = int(zone_info['last_time_index'])\nsaved_accuracy = float(zone_info['avg_accuracy'])\nlatest_actual = float(df['total_wh'].iloc[-1])\ncurrent_pred = float(trained_model.predict([[last_index]])[0])\nbias = latest_actual - current_pred\nnext_index = last_index + 1\ntrend_prediction = float(trained_model.predict([[next_index]])[0])\nfinal_prediction = max(0, trend_prediction + bias)\ndf['time_index'] = np.arange(last_index - len(df) + 1, last_index + 1)\nX_test = df[['time_index']]",
         "detail": "backend.ml.energyModel",
         "documentation": {}
     },
     {
-        "label": "X",
+        "label": "saved_accuracy",
         "kind": 5,
         "importPath": "backend.ml.energyModel",
         "description": "backend.ml.energyModel",
-        "peekOfCode": "X = df[['time_index']]\ny = df['ma']   \nmodel.fit(X, y)\nTEST_SIZE = 3\ntest_df = df.iloc[-TEST_SIZE:]\nX_test = test_df[['time_index']]\ny_test = test_df['total_wh']\ny_pred_test = model.predict(X_test)\ny_pred_test = np.maximum(y_pred_test, 0)\nmse = mean_squared_error(y_test, y_pred_test)",
+        "peekOfCode": "saved_accuracy = float(zone_info['avg_accuracy'])\nlatest_actual = float(df['total_wh'].iloc[-1])\ncurrent_pred = float(trained_model.predict([[last_index]])[0])\nbias = latest_actual - current_pred\nnext_index = last_index + 1\ntrend_prediction = float(trained_model.predict([[next_index]])[0])\nfinal_prediction = max(0, trend_prediction + bias)\ndf['time_index'] = np.arange(last_index - len(df) + 1, last_index + 1)\nX_test = df[['time_index']]\ny_actual = df['total_wh'].values",
         "detail": "backend.ml.energyModel",
         "documentation": {}
     },
     {
-        "label": "y",
+        "label": "latest_actual",
         "kind": 5,
         "importPath": "backend.ml.energyModel",
         "description": "backend.ml.energyModel",
-        "peekOfCode": "y = df['ma']   \nmodel.fit(X, y)\nTEST_SIZE = 3\ntest_df = df.iloc[-TEST_SIZE:]\nX_test = test_df[['time_index']]\ny_test = test_df['total_wh']\ny_pred_test = model.predict(X_test)\ny_pred_test = np.maximum(y_pred_test, 0)\nmse = mean_squared_error(y_test, y_pred_test)\naccuracy_list = []",
+        "peekOfCode": "latest_actual = float(df['total_wh'].iloc[-1])\ncurrent_pred = float(trained_model.predict([[last_index]])[0])\nbias = latest_actual - current_pred\nnext_index = last_index + 1\ntrend_prediction = float(trained_model.predict([[next_index]])[0])\nfinal_prediction = max(0, trend_prediction + bias)\ndf['time_index'] = np.arange(last_index - len(df) + 1, last_index + 1)\nX_test = df[['time_index']]\ny_actual = df['total_wh'].values\ny_pred_trend = np.maximum(trained_model.predict(X_test), 0)",
         "detail": "backend.ml.energyModel",
         "documentation": {}
     },
     {
-        "label": "TEST_SIZE",
+        "label": "current_pred",
         "kind": 5,
         "importPath": "backend.ml.energyModel",
         "description": "backend.ml.energyModel",
-        "peekOfCode": "TEST_SIZE = 3\ntest_df = df.iloc[-TEST_SIZE:]\nX_test = test_df[['time_index']]\ny_test = test_df['total_wh']\ny_pred_test = model.predict(X_test)\ny_pred_test = np.maximum(y_pred_test, 0)\nmse = mean_squared_error(y_test, y_pred_test)\naccuracy_list = []\nfor actual, pred in zip(y_test, y_pred_test):\n    if actual == 0:",
+        "peekOfCode": "current_pred = float(trained_model.predict([[last_index]])[0])\nbias = latest_actual - current_pred\nnext_index = last_index + 1\ntrend_prediction = float(trained_model.predict([[next_index]])[0])\nfinal_prediction = max(0, trend_prediction + bias)\ndf['time_index'] = np.arange(last_index - len(df) + 1, last_index + 1)\nX_test = df[['time_index']]\ny_actual = df['total_wh'].values\ny_pred_trend = np.maximum(trained_model.predict(X_test), 0)\nmse = float(mean_squared_error(y_actual, y_pred_trend))",
         "detail": "backend.ml.energyModel",
         "documentation": {}
     },
     {
-        "label": "test_df",
+        "label": "bias",
         "kind": 5,
         "importPath": "backend.ml.energyModel",
         "description": "backend.ml.energyModel",
-        "peekOfCode": "test_df = df.iloc[-TEST_SIZE:]\nX_test = test_df[['time_index']]\ny_test = test_df['total_wh']\ny_pred_test = model.predict(X_test)\ny_pred_test = np.maximum(y_pred_test, 0)\nmse = mean_squared_error(y_test, y_pred_test)\naccuracy_list = []\nfor actual, pred in zip(y_test, y_pred_test):\n    if actual == 0:\n        acc = 0",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "X_test",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "X_test = test_df[['time_index']]\ny_test = test_df['total_wh']\ny_pred_test = model.predict(X_test)\ny_pred_test = np.maximum(y_pred_test, 0)\nmse = mean_squared_error(y_test, y_pred_test)\naccuracy_list = []\nfor actual, pred in zip(y_test, y_pred_test):\n    if actual == 0:\n        acc = 0\n    else:",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "y_test",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "y_test = test_df['total_wh']\ny_pred_test = model.predict(X_test)\ny_pred_test = np.maximum(y_pred_test, 0)\nmse = mean_squared_error(y_test, y_pred_test)\naccuracy_list = []\nfor actual, pred in zip(y_test, y_pred_test):\n    if actual == 0:\n        acc = 0\n    else:\n        acc = max(0, 100 - abs(actual - pred) / actual * 100)",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "y_pred_test",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "y_pred_test = model.predict(X_test)\ny_pred_test = np.maximum(y_pred_test, 0)\nmse = mean_squared_error(y_test, y_pred_test)\naccuracy_list = []\nfor actual, pred in zip(y_test, y_pred_test):\n    if actual == 0:\n        acc = 0\n    else:\n        acc = max(0, 100 - abs(actual - pred) / actual * 100)\n    accuracy_list.append(acc)",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "y_pred_test",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "y_pred_test = np.maximum(y_pred_test, 0)\nmse = mean_squared_error(y_test, y_pred_test)\naccuracy_list = []\nfor actual, pred in zip(y_test, y_pred_test):\n    if actual == 0:\n        acc = 0\n    else:\n        acc = max(0, 100 - abs(actual - pred) / actual * 100)\n    accuracy_list.append(acc)\navg_accuracy = np.mean(accuracy_list)",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "mse",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "mse = mean_squared_error(y_test, y_pred_test)\naccuracy_list = []\nfor actual, pred in zip(y_test, y_pred_test):\n    if actual == 0:\n        acc = 0\n    else:\n        acc = max(0, 100 - abs(actual - pred) / actual * 100)\n    accuracy_list.append(acc)\navg_accuracy = np.mean(accuracy_list)\nif avg_accuracy >= (saved_train_accuracy * 0.9):",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "accuracy_list",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "accuracy_list = []\nfor actual, pred in zip(y_test, y_pred_test):\n    if actual == 0:\n        acc = 0\n    else:\n        acc = max(0, 100 - abs(actual - pred) / actual * 100)\n    accuracy_list.append(acc)\navg_accuracy = np.mean(accuracy_list)\nif avg_accuracy >= (saved_train_accuracy * 0.9):\n    threshold_status = \"Đạt ngưỡng (Ổn định)\"",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "avg_accuracy",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "avg_accuracy = np.mean(accuracy_list)\nif avg_accuracy >= (saved_train_accuracy * 0.9):\n    threshold_status = \"Đạt ngưỡng (Ổn định)\"\nelse:\n    threshold_status = \"Dưới ngưỡng (Cần train lại model gốc)\"\nnext_index = np.array([[len(df)]])\nnext_pred = model.predict(next_index)[0]\nnext_pred = max(next_pred, 0)\nprint(json.dumps({\n    \"predicted_wh\": round(float(next_pred), 2),",
+        "peekOfCode": "bias = latest_actual - current_pred\nnext_index = last_index + 1\ntrend_prediction = float(trained_model.predict([[next_index]])[0])\nfinal_prediction = max(0, trend_prediction + bias)\ndf['time_index'] = np.arange(last_index - len(df) + 1, last_index + 1)\nX_test = df[['time_index']]\ny_actual = df['total_wh'].values\ny_pred_trend = np.maximum(trained_model.predict(X_test), 0)\nmse = float(mean_squared_error(y_actual, y_pred_trend))\navg_acc = float(np.mean([max(0, 100 - abs(a - p) / a * 100) if a > 0 else 0 for a, p in zip(y_actual, y_pred_trend)]))",
         "detail": "backend.ml.energyModel",
         "documentation": {}
     },
@@ -417,25 +346,79 @@
         "kind": 5,
         "importPath": "backend.ml.energyModel",
         "description": "backend.ml.energyModel",
-        "peekOfCode": "next_index = np.array([[len(df)]])\nnext_pred = model.predict(next_index)[0]\nnext_pred = max(next_pred, 0)\nprint(json.dumps({\n    \"predicted_wh\": round(float(next_pred), 2),\n    \"model_used\": \"Linear Regression\",\n    \"zone_used\": str(zone_id),\n    \"evaluation\": {\n        \"mse\": float(mse),\n        \"avg_accuracy\": float(avg_accuracy),",
+        "peekOfCode": "next_index = last_index + 1\ntrend_prediction = float(trained_model.predict([[next_index]])[0])\nfinal_prediction = max(0, trend_prediction + bias)\ndf['time_index'] = np.arange(last_index - len(df) + 1, last_index + 1)\nX_test = df[['time_index']]\ny_actual = df['total_wh'].values\ny_pred_trend = np.maximum(trained_model.predict(X_test), 0)\nmse = float(mean_squared_error(y_actual, y_pred_trend))\navg_acc = float(np.mean([max(0, 100 - abs(a - p) / a * 100) if a > 0 else 0 for a, p in zip(y_actual, y_pred_trend)]))\nprint(json.dumps({",
         "detail": "backend.ml.energyModel",
         "documentation": {}
     },
     {
-        "label": "next_pred",
+        "label": "trend_prediction",
         "kind": 5,
         "importPath": "backend.ml.energyModel",
         "description": "backend.ml.energyModel",
-        "peekOfCode": "next_pred = model.predict(next_index)[0]\nnext_pred = max(next_pred, 0)\nprint(json.dumps({\n    \"predicted_wh\": round(float(next_pred), 2),\n    \"model_used\": \"Linear Regression\",\n    \"zone_used\": str(zone_id),\n    \"evaluation\": {\n        \"mse\": float(mse),\n        \"avg_accuracy\": float(avg_accuracy),\n        \"train_accuracy_from_pkl\": round(float(saved_train_accuracy), 2),",
+        "peekOfCode": "trend_prediction = float(trained_model.predict([[next_index]])[0])\nfinal_prediction = max(0, trend_prediction + bias)\ndf['time_index'] = np.arange(last_index - len(df) + 1, last_index + 1)\nX_test = df[['time_index']]\ny_actual = df['total_wh'].values\ny_pred_trend = np.maximum(trained_model.predict(X_test), 0)\nmse = float(mean_squared_error(y_actual, y_pred_trend))\navg_acc = float(np.mean([max(0, 100 - abs(a - p) / a * 100) if a > 0 else 0 for a, p in zip(y_actual, y_pred_trend)]))\nprint(json.dumps({\n    \"predicted_wh\": round(final_prediction, 2),",
         "detail": "backend.ml.energyModel",
         "documentation": {}
     },
     {
-        "label": "next_pred",
+        "label": "final_prediction",
         "kind": 5,
         "importPath": "backend.ml.energyModel",
         "description": "backend.ml.energyModel",
-        "peekOfCode": "next_pred = max(next_pred, 0)\nprint(json.dumps({\n    \"predicted_wh\": round(float(next_pred), 2),\n    \"model_used\": \"Linear Regression\",\n    \"zone_used\": str(zone_id),\n    \"evaluation\": {\n        \"mse\": float(mse),\n        \"avg_accuracy\": float(avg_accuracy),\n        \"train_accuracy_from_pkl\": round(float(saved_train_accuracy), 2),\n        \"status\": threshold_status",
+        "peekOfCode": "final_prediction = max(0, trend_prediction + bias)\ndf['time_index'] = np.arange(last_index - len(df) + 1, last_index + 1)\nX_test = df[['time_index']]\ny_actual = df['total_wh'].values\ny_pred_trend = np.maximum(trained_model.predict(X_test), 0)\nmse = float(mean_squared_error(y_actual, y_pred_trend))\navg_acc = float(np.mean([max(0, 100 - abs(a - p) / a * 100) if a > 0 else 0 for a, p in zip(y_actual, y_pred_trend)]))\nprint(json.dumps({\n    \"predicted_wh\": round(final_prediction, 2),\n    \"model_used\": \"Linear Regression (Trend Following)\",",
+        "detail": "backend.ml.energyModel",
+        "documentation": {}
+    },
+    {
+        "label": "df['time_index']",
+        "kind": 5,
+        "importPath": "backend.ml.energyModel",
+        "description": "backend.ml.energyModel",
+        "peekOfCode": "df['time_index'] = np.arange(last_index - len(df) + 1, last_index + 1)\nX_test = df[['time_index']]\ny_actual = df['total_wh'].values\ny_pred_trend = np.maximum(trained_model.predict(X_test), 0)\nmse = float(mean_squared_error(y_actual, y_pred_trend))\navg_acc = float(np.mean([max(0, 100 - abs(a - p) / a * 100) if a > 0 else 0 for a, p in zip(y_actual, y_pred_trend)]))\nprint(json.dumps({\n    \"predicted_wh\": round(final_prediction, 2),\n    \"model_used\": \"Linear Regression (Trend Following)\",\n    \"zone_used\": target_zone,",
+        "detail": "backend.ml.energyModel",
+        "documentation": {}
+    },
+    {
+        "label": "X_test",
+        "kind": 5,
+        "importPath": "backend.ml.energyModel",
+        "description": "backend.ml.energyModel",
+        "peekOfCode": "X_test = df[['time_index']]\ny_actual = df['total_wh'].values\ny_pred_trend = np.maximum(trained_model.predict(X_test), 0)\nmse = float(mean_squared_error(y_actual, y_pred_trend))\navg_acc = float(np.mean([max(0, 100 - abs(a - p) / a * 100) if a > 0 else 0 for a, p in zip(y_actual, y_pred_trend)]))\nprint(json.dumps({\n    \"predicted_wh\": round(final_prediction, 2),\n    \"model_used\": \"Linear Regression (Trend Following)\",\n    \"zone_used\": target_zone,\n    \"evaluation\": {",
+        "detail": "backend.ml.energyModel",
+        "documentation": {}
+    },
+    {
+        "label": "y_actual",
+        "kind": 5,
+        "importPath": "backend.ml.energyModel",
+        "description": "backend.ml.energyModel",
+        "peekOfCode": "y_actual = df['total_wh'].values\ny_pred_trend = np.maximum(trained_model.predict(X_test), 0)\nmse = float(mean_squared_error(y_actual, y_pred_trend))\navg_acc = float(np.mean([max(0, 100 - abs(a - p) / a * 100) if a > 0 else 0 for a, p in zip(y_actual, y_pred_trend)]))\nprint(json.dumps({\n    \"predicted_wh\": round(final_prediction, 2),\n    \"model_used\": \"Linear Regression (Trend Following)\",\n    \"zone_used\": target_zone,\n    \"evaluation\": {\n        \"mse\": round(mse, 2),",
+        "detail": "backend.ml.energyModel",
+        "documentation": {}
+    },
+    {
+        "label": "y_pred_trend",
+        "kind": 5,
+        "importPath": "backend.ml.energyModel",
+        "description": "backend.ml.energyModel",
+        "peekOfCode": "y_pred_trend = np.maximum(trained_model.predict(X_test), 0)\nmse = float(mean_squared_error(y_actual, y_pred_trend))\navg_acc = float(np.mean([max(0, 100 - abs(a - p) / a * 100) if a > 0 else 0 for a, p in zip(y_actual, y_pred_trend)]))\nprint(json.dumps({\n    \"predicted_wh\": round(final_prediction, 2),\n    \"model_used\": \"Linear Regression (Trend Following)\",\n    \"zone_used\": target_zone,\n    \"evaluation\": {\n        \"mse\": round(mse, 2),\n        \"avg_accuracy\": round(avg_acc, 2),",
+        "detail": "backend.ml.energyModel",
+        "documentation": {}
+    },
+    {
+        "label": "mse",
+        "kind": 5,
+        "importPath": "backend.ml.energyModel",
+        "description": "backend.ml.energyModel",
+        "peekOfCode": "mse = float(mean_squared_error(y_actual, y_pred_trend))\navg_acc = float(np.mean([max(0, 100 - abs(a - p) / a * 100) if a > 0 else 0 for a, p in zip(y_actual, y_pred_trend)]))\nprint(json.dumps({\n    \"predicted_wh\": round(final_prediction, 2),\n    \"model_used\": \"Linear Regression (Trend Following)\",\n    \"zone_used\": target_zone,\n    \"evaluation\": {\n        \"mse\": round(mse, 2),\n        \"avg_accuracy\": round(avg_acc, 2),\n        \"train_accuracy_from_pkl\": round(saved_accuracy, 2),",
+        "detail": "backend.ml.energyModel",
+        "documentation": {}
+    },
+    {
+        "label": "avg_acc",
+        "kind": 5,
+        "importPath": "backend.ml.energyModel",
+        "description": "backend.ml.energyModel",
+        "peekOfCode": "avg_acc = float(np.mean([max(0, 100 - abs(a - p) / a * 100) if a > 0 else 0 for a, p in zip(y_actual, y_pred_trend)]))\nprint(json.dumps({\n    \"predicted_wh\": round(final_prediction, 2),\n    \"model_used\": \"Linear Regression (Trend Following)\",\n    \"zone_used\": target_zone,\n    \"evaluation\": {\n        \"mse\": round(mse, 2),\n        \"avg_accuracy\": round(avg_acc, 2),\n        \"train_accuracy_from_pkl\": round(saved_accuracy, 2),\n        \"status\": \"Ổn định\" if avg_acc > (saved_accuracy * 0.8) else \"Lệch xu hướng (Cần train lại)\"",
         "detail": "backend.ml.energyModel",
         "documentation": {}
     },
@@ -444,7 +427,7 @@
         "kind": 2,
         "importPath": "backend.ml.trainModel",
         "description": "backend.ml.trainModel",
-        "peekOfCode": "def mean_absolute_percentage_error(y_actual: np.ndarray, y_pred: np.ndarray) -> float:\n    \"\"\"\n    MAPE = (1/n) * Σ |( Y_i - Ŷ_i ) / Y_i| * 100\n    Bỏ qua các điểm có y_actual = 0 để tránh chia-cho-0.\n    \"\"\"\n    mask = y_actual != 0\n    if not mask.any():\n        return 0.0\n    return float(np.mean(np.abs((y_actual[mask] - y_pred[mask]) / y_actual[mask])) * 100)\ndef fetch_from_neon() -> tuple[pd.DataFrame, pd.DataFrame]:",
+        "peekOfCode": "def mean_absolute_percentage_error(y_actual: np.ndarray, y_pred: np.ndarray) -> float:\n    mask = y_actual != 0\n    if not mask.any():\n        return 0.0\n    return float(np.mean(np.abs((y_actual[mask] - y_pred[mask]) / y_actual[mask])) * 100)\ndef fetch_from_neon() -> tuple[pd.DataFrame, pd.DataFrame]:\n    import psycopg2\n    from psycopg2.extras import RealDictCursor\n    conn = psycopg2.connect(NEON_CONNECTION_STRING)\n    with conn.cursor(cursor_factory=RealDictCursor) as cur:",
         "detail": "backend.ml.trainModel",
         "documentation": {}
     },
@@ -516,7 +499,7 @@
         "kind": 5,
         "importPath": "backend.ml.trainModel",
         "description": "backend.ml.trainModel",
-        "peekOfCode": "OUTPUT_PNG = os.path.join(FRONTEND_PUBLIC_DIR, \"energy_forecast.png\")\nNEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler\"\n    \".ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n)\nN_TRAIN    = 3\nN_TEST     = 2\nMA_WINDOW  = 3\ndef mean_absolute_percentage_error(y_actual: np.ndarray, y_pred: np.ndarray) -> float:\n    \"\"\"",
+        "peekOfCode": "OUTPUT_PNG = os.path.join(FRONTEND_PUBLIC_DIR, \"energy_forecast.png\")\nNEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler\"\n    \".ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n)\nN_TRAIN    = 3\nN_TEST     = 2\nMA_WINDOW  = 3\ndef mean_absolute_percentage_error(y_actual: np.ndarray, y_pred: np.ndarray) -> float:\n    mask = y_actual != 0",
         "detail": "backend.ml.trainModel",
         "documentation": {}
     },
@@ -525,7 +508,7 @@
         "kind": 5,
         "importPath": "backend.ml.trainModel",
         "description": "backend.ml.trainModel",
-        "peekOfCode": "NEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler\"\n    \".ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n)\nN_TRAIN    = 3\nN_TEST     = 2\nMA_WINDOW  = 3\ndef mean_absolute_percentage_error(y_actual: np.ndarray, y_pred: np.ndarray) -> float:\n    \"\"\"\n    MAPE = (1/n) * Σ |( Y_i - Ŷ_i ) / Y_i| * 100",
+        "peekOfCode": "NEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler\"\n    \".ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n)\nN_TRAIN    = 3\nN_TEST     = 2\nMA_WINDOW  = 3\ndef mean_absolute_percentage_error(y_actual: np.ndarray, y_pred: np.ndarray) -> float:\n    mask = y_actual != 0\n    if not mask.any():",
         "detail": "backend.ml.trainModel",
         "documentation": {}
     },

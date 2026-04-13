@@ -34,10 +34,6 @@ MA_WINDOW  = 3
 
 
 def mean_absolute_percentage_error(y_actual: np.ndarray, y_pred: np.ndarray) -> float:
-    """
-    MAPE = (1/n) * Σ |( Y_i - Ŷ_i ) / Y_i| * 100
-    Bỏ qua các điểm có y_actual = 0 để tránh chia-cho-0.
-    """
     mask = y_actual != 0
     if not mask.any():
         return 0.0
