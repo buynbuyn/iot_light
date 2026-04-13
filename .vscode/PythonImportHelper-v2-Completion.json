@@ -27,6 +27,15 @@
         "documentation": {}
     },
     {
+        "label": "os",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "os",
+        "description": "os",
+        "detail": "os",
+        "documentation": {}
+    },
+    {
         "label": "joblib",
         "kind": 6,
         "isExtraImport": true,
@@ -42,15 +51,6 @@
         "importPath": "numpy",
         "description": "numpy",
         "detail": "numpy",
-        "documentation": {}
-    },
-    {
-        "label": "os",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "os",
-        "description": "os",
-        "detail": "os",
         "documentation": {}
     },
     {
@@ -176,6 +176,15 @@
         "description": "scipy.stats",
         "isExtraImport": true,
         "detail": "scipy.stats",
+        "documentation": {}
+    },
+    {
+        "label": "BASE_DIR",
+        "kind": 5,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "BASE_DIR = os.path.dirname(os.path.abspath(__file__))\n# Load model: Kết hợp BASE_DIR với folder models\ntry:\n    # Nếu folder models nằm TRONG thư mục ml, dùng đường dẫn này:\n    model_path = os.path.join(BASE_DIR, \"models\", \"anomaly_model.pkl\")\n    scaler_path = os.path.join(BASE_DIR, \"models\", \"scaler.pkl\") \n    # Kiểm tra xem file có tồn tại thật không trước khi load\n    if not os.path.exists(model_path) or not os.path.exists(scaler_path):\n        raise FileNotFoundError(f\"Không tìm thấy file tại: {model_path} hoặc {scaler_path}\")\n    model = joblib.load(model_path)",
+        "detail": "backend.ml.anomaly_detection",
         "documentation": {}
     },
     {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import "../css/report.css";
 
 
@@ -19,7 +19,7 @@ export default function ReportPage() {
   const totalCurrent = predict.reduce((s, i) => s + Number(i.current_price), 0);
   const totalPredicted = predict.reduce((s, i) => s + Number(i.predicted_cost), 0);
   const delta = (((totalPredicted - totalCurrent) / totalCurrent) * 100).toFixed(1);
-  
+
 
   return (
     <div className={`rp-root${loaded ? " rp-loaded" : ""}`}>
@@ -101,15 +101,14 @@ export default function ReportPage() {
                     </div>
                   </div>
                 </td>
-                <td>{Number(row.total_wh).toFixed(3).split(".")[0] /1000}</td>
+                <td>{Number(row.total_wh).toFixed(3).split(".")[0] / 1000}</td>
                 <td className="rp-bold">{Number(row.current_price).toLocaleString("vi-VN").split(".").slice(0, 2).join(".")}</td>
-                <td>{Number(row.predicted_wh).toFixed(3).split(".")[0] /1000}</td>
+                <td>{Number(row.predicted_wh).toFixed(3).split(".")[0] / 1000}</td>
                 <td className="rp-bold rp-gold">{Number(row.predicted_cost).toLocaleString("vi-VN").split(".").slice(0, 2).join(".")}</td>
                 <td>
                   <span
-                    className={`rp-badge ${
-                      row.deviation > 0 ? "rp-badge--neg" : "rp-badge--pos"
-                    }`}
+                    className={`rp-badge ${row.deviation > 0 ? "rp-badge--neg" : "rp-badge--pos"
+                      }`}
                   >
                     {row.deviation > 0 ? "+" : "-"}
                     {Math.abs(row.deviation).toString().slice(0, 2)}%
@@ -165,7 +164,7 @@ export default function ReportPage() {
       </section>
 
       <section className="rp-section rp-animate" style={{ "--delay": "0.25s" }}>
-          <img style={{height: "400px", width: "900px"}} src="./energy_forecast.png" />
+        <img style={{ height: "400px", width: "900px" }} src="./energy_forecast.png" />
       </section>
 
     </div>
