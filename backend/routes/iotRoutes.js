@@ -155,7 +155,26 @@ router.get("/zones", async (req, res) => {
     });
   }
 });
+// ================= UPDATE ZONES =================
+router.put("/zones/:id/toggle", async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body; // 'active' hoặc 'inactive'
 
+    try {
+        const query = "UPDATE zones SET status = $1 WHERE zone_id = $2 RETURNING *";
+        const values = [status, id];
+        const result = await pool.query(query, values);
+
+        if (result.rows.length > 0) {
+            res.json({ message: "Cập nhật thành công", zone: result.rows[0] });
+        } else {
+            res.status(404).json({ message: "Không tìm thấy khu vực" });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Lỗi server" });
+    }
+});
 // ================= GET ALL STREET LIGHTS =================
 router.get("/street-lights", async (req, res) => {
   try {
