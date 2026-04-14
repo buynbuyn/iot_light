@@ -99,7 +99,8 @@ async function predictEnergyForZone(zone_id) {
 
         const formattedData = energyData.rows.map((d) => ({
             month: d.month.toISOString().slice(0, 10),
-            total_wh: parseFloat(d.total_wh)
+            total_wh: parseFloat(d.total_wh),
+            zone_id: zone_id
         }));
 
         if (formattedData.length < 2) {
@@ -117,6 +118,8 @@ async function predictEnergyForZone(zone_id) {
         const price = priceResult.rows[0]?.price_per_kwh || 0;
 
         const scriptPath = path.join(__dirname, "../ml/energyModel.py");
+
+        console.log(formattedData)
 
         return new Promise((resolve, reject) => {
             const py = spawn("python", [
@@ -146,6 +149,7 @@ async function predictEnergyForZone(zone_id) {
                     console.log("📦 Raw Python output:", output);
 
                     const res = JSON.parse(output.trim());
+                    console.log(res)
 
                     const predicted_wh = res.predicted_wh;
 
@@ -174,7 +178,8 @@ async function predictEnergyForZone(zone_id) {
                                 prediction_date = NOW(),
                                 predicted_wh = $1,
                                 predicted_cost = $2,
-                                model_used = $3
+                                model_used = $3,
+                                target_month = $5
                             WHERE zone_id = $4
                             AND target_month >= DATE_TRUNC('month', $5::timestamp)
                             AND target_month < DATE_TRUNC('month', $5::timestamp) + INTERVAL '1 month'

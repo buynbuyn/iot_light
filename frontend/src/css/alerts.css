@@ -312,3 +312,45 @@ body {
     padding: 40px 0;
     font-style: italic;
 }
+/* Container tổng */
+.ai-report-section { 
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 20px;
+    border: 1px solid #2d333b;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Header của phần báo cáo */
+/* Container tổng - Bỏ bớt border để ảnh cảm giác to hơn */
+/* Container bọc phần report bên dưới bảng */
+.ai-report-section {
+    margin-top: 40px; /* Cách bảng một khoảng */
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #30363d;
+}
+
+.ai-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.ai-header h5 {
+    font-size: 1.1rem; /* Chữ tiêu đề to hơn */
+    color: #58a6ff;
+    margin: 0;
+}
+.model-plot-img {
+    width: 90%; /* Ảnh giãn ra hết cỡ */
+    height: auto;
+    display: block;
+    cursor: zoom-in;
+    transition: transform 0.3s ease;
+}
+
+/* Hiệu ứng rê chuột nhẹ nhàng */
+.model-plot-img:hover {
+    transform: scale(1.01);
+}

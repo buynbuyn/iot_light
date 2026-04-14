@@ -1,0 +1,319 @@
+/* =========================================
+   WRAPPER CHÍNH
+   ========================================= */
+.monitor-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.monitor-container * {
+  box-sizing: border-box;
+}
+
+/* =========================================
+   TYPOGRAPHY & HEADER
+   ========================================= */
+.monitor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.monitor-header-title h2 {
+  font-size: 24px;
+  color: #0052cc;
+  margin: 0 0 4px 0;
+}
+
+.monitor-header-title p {
+  color: #6c757d;
+  font-size: 14px;
+  margin: 0;
+}
+
+.monitor-btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #0052cc;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.monitor-btn-primary:hover {
+  background-color: #003d99;
+}
+
+.monitor-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+/* =========================================
+   TABLE SECTION
+   ========================================= */
+.monitor-table-card {
+  padding: 24px 0; 
+}
+
+.monitor-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px 20px 24px;
+}
+
+.monitor-table-header h3 {
+  font-size: 18px;
+  margin: 0;
+}
+
+.monitor-table-tabs {
+  display: flex;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.monitor-table-tabs button {
+  background: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #6c757d;
+  cursor: pointer;
+  border-right: 1px solid #e0e0e0;
+}
+
+.monitor-table-tabs button:last-child {
+  border-right: none;
+}
+
+.monitor-table-tabs button.active {
+  background-color: #0052cc;
+  color: white;
+}
+
+.monitor-table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.monitor-container table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.monitor-container th {
+  font-size: 12px;
+  color: #6c757d;
+  text-transform: uppercase;
+  padding: 12px 24px;
+  border-bottom: 1px solid #eee;
+  border-top: 1px solid #eee;
+  font-weight: 600;
+}
+
+.monitor-container td {
+  padding: 16px 24px;
+  font-size: 14px;
+  border-bottom: 1px solid #f5f5f5;
+  vertical-align: middle;
+}
+
+.monitor-container tr:last-child td {
+  border-bottom: none;
+}
+
+/* =========================================
+   CUSTOM TABLE CELLS & CẢNH BÁO
+   ========================================= */
+.monitor-time-col {
+  line-height: 1.4;
+}
+
+.monitor-time-sub {
+  color: #888;
+  font-size: 12px;
+}
+
+.monitor-log-id {
+  color: #0052cc;
+  font-weight: 600;
+}
+
+.monitor-zone-name {
+  font-weight: 500;
+}
+
+/* Hàng cảnh báo đỏ */
+.monitor-row-anomaly {
+  background-color: #fff1f0; 
+}
+
+.monitor-row-anomaly td {
+  color: #cf1322 !important; 
+}
+
+.monitor-text-danger {
+  color: #cf1322 !important; 
+}
+
+.monitor-fw-bold {
+  font-weight: 700;
+}
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+@media (max-width: 600px) {
+  .monitor-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}
+/* Dashboard Grid & Chart */
+.monitor-dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.monitor-side-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.monitor-card-title {
+  font-size: 12px;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 8px 0;
+}
+
+.monitor-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.monitor-power-value .monitor-number {
+  font-size: 36px;
+  font-weight: 700;
+  color: #0052cc;
+}
+
+.monitor-power-value .monitor-unit {
+  font-size: 16px;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.monitor-badge-saving {
+  background-color: #e6f4ea;
+  color: #1e8e3e;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.monitor-chart-wrapper {
+  height: 220px;
+  width: 100%;
+}
+
+.monitor-stat-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.monitor-stat-icon-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.monitor-stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.monitor-yellow {
+  background-color: #fff8e6;
+  color: #f6b211;
+}
+
+.monitor-green {
+  background-color: #e6f4ea;
+  color: #1e8e3e;
+}
+
+.monitor-stat-value {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.monitor-stat-value .monitor-unit {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.monitor-status {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.monitor-stable {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+
+.monitor-optimized {
+  background-color: #e6f4ea;
+  color: #1e8e3e;
+}
+
+@media (max-width: 900px) {
+  .monitor-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  .monitor-side-stats {
+    flex-direction: row;
+  }
+  .monitor-stat-card {
+    flex: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .monitor-side-stats {
+    flex-direction: column;
+  }
+}

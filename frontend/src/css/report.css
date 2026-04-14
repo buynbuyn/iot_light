@@ -424,3 +424,65 @@
     display: none;
   }
 }
+
+/* Chart container */
+.rp-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 260px;
+  padding: 20px;
+  gap: 30px;
+}
+
+/* Each zone */
+.rp-bar-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Bar wrapper */
+.rp-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  height: 200px;
+}
+
+/* Bar base */
+.rp-bar {
+  width: 24px;
+  border-radius: 6px;
+  transition: 0.5s ease;
+  animation: growBar 0.8s ease forwards;
+}
+
+/* Actual */
+.rp-bar--actual {
+  background: linear-gradient(180deg, #3b82f6, #1e3a8a);
+}
+
+/* Predicted */
+.rp-bar--pred {
+  background: linear-gradient(180deg, #facc15, #ca8a04);
+}
+
+/* Label */
+.rp-bar-label {
+  margin-top: 10px;
+  font-size: 13px;
+  text-align: center;
+  color: #444;
+}
+
+/* Animation */
+@keyframes growBar {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

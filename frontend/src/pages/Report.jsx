@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import "../css/report.css";
 
 
@@ -16,9 +16,10 @@ export default function ReportPage() {
     setTimeout(() => setLoaded(true), 100);
   }, []);
 
-  const totalCurrent = predict.reduce((s, i) => s + Number(i.current), 0);
+  const totalCurrent = predict.reduce((s, i) => s + Number(i.current_price), 0);
   const totalPredicted = predict.reduce((s, i) => s + Number(i.predicted_cost), 0);
   const delta = (((totalPredicted - totalCurrent) / totalCurrent) * 100).toFixed(1);
+
 
   return (
     <div className={`rp-root${loaded ? " rp-loaded" : ""}`}>
@@ -41,8 +42,7 @@ export default function ReportPage() {
                 <span className="rp-stat-icon">💰</span> CHI PHÍ HIỆN TẠI
               </p>
               <p className="rp-stat-value">
-                {totalCurrent.toFixed(1)}
-                <span className="rp-stat-unit"> Tr. VND</span>
+                {totalCurrent.toLocaleString("vi-VN").split(".").slice(0, 2).join(".")}
               </p>
             </div>
           </div>
@@ -54,8 +54,7 @@ export default function ReportPage() {
                 <span className="rp-stat-icon">📈</span> DỰ BÁO THÁNG TỚI
               </p>
               <p className="rp-stat-value">
-                {totalPredicted.toFixed(1)}
-                <span className="rp-stat-unit"> Tr. VND</span>
+                {totalPredicted.toLocaleString("vi-VN").split(".").slice(0, 2).join(".")}
               </p>
               <p className="rp-stat-delta rp-stat-delta--up">
                 ▲ +{delta}% (Dự báo AI)
@@ -70,7 +69,7 @@ export default function ReportPage() {
         <div className="rp-section-head">
           <h2 className="rp-section-title">So sánh hiệu suất Khu vực</h2>
           <p className="rp-section-sub">
-            Dữ liệu tổng hợp từ 3 trọng điểm đô thị (energy_summary &amp; prediction_history)
+            Dữ liệu tổng hợp từ 3 trọng điểm đô thị
           </p>
         </div>
 
@@ -79,9 +78,9 @@ export default function ReportPage() {
             <tr>
               <th>KHU VỰC QUẢN LÝ</th>
               <th>TIÊU THỤ (KWH)</th>
-              <th>HIỆN TẠI (TRIỆU)</th>
+              <th>HIỆN TẠI</th>
               <th>DỰ BÁO (KWH)</th>
-              <th>DỰ BÁO (TRIỆU)</th>
+              <th>DỰ BÁO</th>
               <th>ĐỘ LỆCH (%)</th>
             </tr>
           </thead>
@@ -102,18 +101,17 @@ export default function ReportPage() {
                     </div>
                   </div>
                 </td>
-                <td>{Number(row.total_wh).toLocaleString("vi-VN")}</td>
-                <td className="rp-bold">{Number(row.current).toFixed(1)}</td>
-                <td>{Number(row.predicted_wh).toLocaleString("vi-VN")}</td>
-                <td className="rp-bold rp-gold">{Number(row.predicted_cost).toFixed(1)}</td>
+                <td>{Number(row.total_wh).toFixed(3).split(".")[0] / 1000}</td>
+                <td className="rp-bold">{Number(row.current_price).toLocaleString("vi-VN").split(".").slice(0, 2).join(".")}</td>
+                <td>{Number(row.predicted_wh).toFixed(3).split(".")[0] / 1000}</td>
+                <td className="rp-bold rp-gold">{Number(row.predicted_cost).toLocaleString("vi-VN").split(".").slice(0, 2).join(".")}</td>
                 <td>
                   <span
-                    className={`rp-badge ${
-                      row.deviation > 0 ? "rp-badge--neg" : "rp-badge--pos"
-                    }`}
+                    className={`rp-badge ${row.deviation > 0 ? "rp-badge--neg" : "rp-badge--pos"
+                      }`}
                   >
-                    {row.deviation > 0 ? "+" : ""}
-                    {row.deviation}%
+                    {row.deviation > 0 ? "+" : "-"}
+                    {Math.abs(row.deviation).toString().slice(0, 2)}%
                   </span>
                 </td>
               </tr>
@@ -136,8 +134,39 @@ export default function ReportPage() {
             <span className="rp-legend-dot rp-legend-dot--pred" /> Dự báo
           </div>
         </div>
+        <div className="rp-chart">
+          {predict.map((row, i) => {
+            const max = Math.max(
+              ...predict.map(r => Math.max(Number(r.current_price), Number(r.predicted_cost)))
+            );
 
+            const actualHeight = (Number(row.current_price) / max) * 100;
+            const predictedHeight = (Number(row.predicted_cost) / max) * 100;
+
+            return (
+              <div className="rp-bar-group" key={i}>
+                <div className="rp-bars">
+                  <div
+                    className="rp-bar rp-bar--actual"
+                    style={{ height: `${actualHeight}%` }}
+                  />
+                  <div
+                    className="rp-bar rp-bar--pred"
+                    style={{ height: `${predictedHeight}%` }}
+                  />
+                </div>
+
+                <p className="rp-bar-label">{row.zone_name}</p>
+              </div>
+            );
+          })}
+        </div>
       </section>
+
+      <section className="rp-section rp-animate" style={{ "--delay": "0.25s" }}>
+        <img style={{ height: "400px", width: "900px" }} src="./energy_forecast.png" />
+      </section>
+
     </div>
   );
 }

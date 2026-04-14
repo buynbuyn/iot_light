@@ -1,149 +1,123 @@
 import psycopg2
 import pandas as pd
 import sys
-from sklearn.ensemble import IsolationForest
-from scipy.stats import zscore
-from sklearn.preprocessing import StandardScaler
+import os
+import joblib
+import numpy as np
+import requests
 
-# Force stdout to UTF-8 để tránh lỗi encode
-sys.stdout.reconfigure(encoding='utf-8')
+# ================= TELEGRAM CONFIG =================
+BOT_TOKEN = "8778153970:AAEYNL78RkMRDv0nBegde8K2mkOiMkLYv5M"
+CHAT_ID = "8039711385"
 
-DB_DIRECT_URL = "postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require"
+def send_telegram(msg):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    data = {
+        "chat_id": CHAT_ID,
+        "text": msg
+    }
+    try:
+        requests.post(url, data=data)
+    except Exception as e:
+        print("Send Telegram failed:", e)
 
-# ── NHẬN log_id ───────────────────────────────────────────
+# ================= LOAD MODEL =================
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+try:
+    model_path = os.path.join(BASE_DIR, "models", "anomaly_model.pkl")
+    scaler_path = os.path.join(BASE_DIR, "models", "scaler.pkl")
+
+    if not os.path.exists(model_path) or not os.path.exists(scaler_path):
+        raise FileNotFoundError("Model or Scaler not found")
+
+    model = joblib.load(model_path)
+    scaler = joblib.load(scaler_path)
+    print("Models loaded successfully!")
+
+except Exception as e:
+    print(f"Error loading model: {e}")
+    sys.exit(1)
+
+# ================= DB CONFIG =================
+DB_DIRECT_URL = "postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require"
+
 if len(sys.argv) < 2:
-    print("No log_id provided, exiting.")
     sys.exit(0)
 
 log_ids = [int(x) for x in sys.argv[1].split(",")]
-print(f"Processing for log_ids: {log_ids}")
 
-# ── CONNECT ───────────────────────────────────────────────
 conn = psycopg2.connect(DB_DIRECT_URL)
 cur = conn.cursor()
 
-# ── LOAD DATA TRAIN (500 dòng gần nhất) ───────────────────
-query = """
-    SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp
-    FROM sensor_logs
-    ORDER BY timestamp DESC
-    LIMIT 500
-"""
-df = pd.read_sql(query, conn)
-print(f"Loaded rows: {len(df)}")
-
-if df.empty:
-    print("No data, exiting.")
-    conn.close()
-    sys.exit(0)
-
-# ── PREPROCESS ────────────────────────────────────────────
 feature_cols = ["brightness_level", "current_value", "voltage", "power_consumption"]
-df[feature_cols] = df[feature_cols].fillna(0)
 
-scaler = StandardScaler()
-features_scaled = scaler.fit_transform(df[feature_cols])
-features_scaled_df = pd.DataFrame(features_scaled, index=df.index, columns=feature_cols)
-
-z_scores_full = pd.DataFrame(zscore(features_scaled), index=df.index, columns=feature_cols)
-
-model = IsolationForest(n_estimators=300, contamination=0.05, random_state=42)
-model.fit(features_scaled)
-
-# ── LOOP TỪNG LOG ─────────────────────────────────────────
+# ================= MAIN LOOP =================
 for log_id in log_ids:
-    print(f"\n--- Checking log_id: {log_id} ---")
-    new_row = df[df["log_id"] == log_id]
+    cur.execute("""
+        SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp
+        FROM sensor_logs WHERE log_id = %s
+    """, (log_id,))
 
-    # 🔥 FIX: nếu không nằm trong 500 dòng → query trực tiếp
-    if new_row.empty:
-        print(f"log_id {log_id} not in recent 1000 -> fetching from DB...")
-        cur.execute("""
-            SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp
-            FROM sensor_logs WHERE log_id = %s
-        """, (log_id,))
-        row_db = cur.fetchone()
-        if not row_db:
-            print(f"log_id {log_id} not found at all, skipping.")
-            continue
-        new_row = pd.DataFrame([row_db], columns=df.columns)
-        df = pd.concat([df, new_row], ignore_index=True)
+    row = cur.fetchone()
+    if not row:
+        continue
 
-        new_scaled = scaler.transform(new_row[feature_cols])
-        features_scaled_df = pd.concat([
-            features_scaled_df,
-            pd.DataFrame(new_scaled, columns=feature_cols)
-        ], ignore_index=True)
-        new_idx = len(features_scaled_df) - 1
-    else:
-        new_idx = new_row.index[0]
+    zone_id = row[1]
+    detected_time = row[6]
 
-    row = new_row.iloc[0]
-    zone_id = int(row["zone_id"])
-    detected_time = pd.to_datetime(row["timestamp"]).to_pydatetime()
-    print(f"Zone ID: {zone_id}")
+    df_new = pd.DataFrame([row[2:6]], columns=feature_cols).fillna(0)
 
-    # ── CHECK ZONE ACTIVE ────────────────────────────────
+    # ===== CHECK ZONE ACTIVE =====
     cur.execute("SELECT status FROM zones WHERE zone_id = %s", (zone_id,))
-    zone = cur.fetchone()
-    if not zone:
-        print(f"Zone {zone_id} not found, skipping.")
+    zone_status = cur.fetchone()
+    if not zone_status or zone_status[0] != 'active':
         continue
 
-    print(f"Zone status: {zone[0]}")
-    if zone[0] != "active":
-        print(f"Zone {zone_id} is not active -> skip.")
-        continue
+    # ================= RULE 1: LAMP FAILURE =================
+    if int(row[2]) == 0 and int(row[4]) == 0:
+        print(f"Lamp Failure at Zone {zone_id}")
 
-    print("Zone ACTIVE -> detecting...")
-
-    # ── RULE: LAMP FAILURE ───────────────────────────────
-    if int(row["brightness_level"]) == 0 and int(row["voltage"]) == 0:
         cur.execute("""
-            SELECT 1 FROM alerts WHERE zone_id=%s AND detected_time=%s AND alert_type='Lamp Failure'
-        """, (zone_id, detected_time))
-        if not cur.fetchone():
-            cur.execute("""
-                INSERT INTO alerts (zone_id, alert_type, detected_time, severity, status)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (zone_id, "Lamp Failure", detected_time, "high", "unresolved"))
-            cur.execute("""
-                UPDATE zones SET status = 'inactive' WHERE zone_id = %s AND status = 'active'
-            """, (zone_id,))
-            print(f"🚨 Lamp Failure -> Alert + Zone {zone_id} INACTIVE")
+            INSERT INTO alerts (zone_id, alert_type, detected_time, severity, status)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (zone_id, "Lamp Failure", detected_time, "high", "unresolved"))
+
+        cur.execute("UPDATE zones SET status = 'inactive' WHERE zone_id = %s", (zone_id,))
+
+        # 🔥 TELEGRAM
+        send_telegram(
+            f"LAMP FAILURE\nZone: {zone_id}\nTime: {detected_time}"
+        )
+
         continue
 
-    # ── Z-SCORE ─────────────────────────────────────────
-    z_anomaly = bool((z_scores_full.loc[new_idx].abs() > 3.5).any())
+    # ================= AI DETECTION =================
+    new_scaled = scaler.transform(df_new)
 
-    # ── ISOLATION FOREST ────────────────────────────────
-    new_scaled_input = features_scaled_df.loc[[new_idx]].values
-    iso_pred = model.predict(new_scaled_input)[0]
-    iso_anomaly = bool(iso_pred == -1)
+    iso_anomaly = (model.predict(new_scaled)[0] == -1)
 
-    is_anomaly = z_anomaly or iso_anomaly
-    print(f"Anomaly detected: {is_anomaly}")
+    z_scores = np.abs(new_scaled)
+    z_anomaly = (z_scores > 1.5).any()
 
-    # ── INSERT ALERT ────────────────────────────────────
-    if is_anomaly:
+    if iso_anomaly or z_anomaly:
+        print(f"Anomaly Detected for Log {log_id}")
+
         cur.execute("""
-            SELECT 1 FROM alerts WHERE zone_id=%s AND detected_time=%s AND alert_type='Energy Anomaly'
-        """, (zone_id, detected_time))
-        if not cur.fetchone():
-            cur.execute("""
-                INSERT INTO alerts (zone_id, alert_type, detected_time, severity, status)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (zone_id, "Energy Anomaly", detected_time, "medium", "unresolved"))
-            cur.execute("""
-                UPDATE zones SET status = 'inactive' WHERE zone_id = %s AND status = 'active'
-            """, (zone_id,))
-            print(f"⚠️ Energy Anomaly -> Alert + Zone {zone_id} INACTIVE")
-        else:
-            print("Alert already exists.")
+            INSERT INTO alerts (zone_id, alert_type, detected_time, severity, status)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (zone_id, "Energy Anomaly", detected_time, "medium", "unresolved"))
+
+        cur.execute("UPDATE zones SET status = 'inactive' WHERE zone_id = %s", (zone_id,))
+
+        # 🔥 TELEGRAM
+        send_telegram(
+            f"ENERGY ANOMALY\nZone: {zone_id}\nTime: {detected_time}"
+        )
+
     else:
-        print("No anomaly detected.")
+        print(f"Log {log_id} is Normal")
 
-# ── COMMIT ───────────────────────────────────────────────
+# ================= COMMIT =================
 conn.commit()
 conn.close()
-print("\n✅ Done.")
