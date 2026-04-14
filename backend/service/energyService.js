@@ -149,6 +149,7 @@ async function predictEnergyForZone(zone_id) {
                     console.log("📦 Raw Python output:", output);
 
                     const res = JSON.parse(output.trim());
+                    console.log(res)
 
                     const predicted_wh = res.predicted_wh;
 

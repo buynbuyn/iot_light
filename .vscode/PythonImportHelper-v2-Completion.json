@@ -27,6 +27,15 @@
         "documentation": {}
     },
     {
+        "label": "os",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "os",
+        "description": "os",
+        "detail": "os",
+        "documentation": {}
+    },
+    {
         "label": "joblib",
         "kind": 6,
         "isExtraImport": true,
@@ -42,15 +51,6 @@
         "importPath": "numpy",
         "description": "numpy",
         "detail": "numpy",
-        "documentation": {}
-    },
-    {
-        "label": "os",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "os",
-        "description": "os",
-        "detail": "os",
         "documentation": {}
     },
     {
@@ -88,19 +88,11 @@
         "documentation": {}
     },
     {
-        "label": "LinearRegression",
-        "importPath": "sklearn.linear_model",
-        "description": "sklearn.linear_model",
+        "label": "r2_score",
+        "importPath": "sklearn.metrics",
+        "description": "sklearn.metrics",
         "isExtraImport": true,
-        "detail": "sklearn.linear_model",
-        "documentation": {}
-    },
-    {
-        "label": "LinearRegression",
-        "importPath": "sklearn.linear_model",
-        "description": "sklearn.linear_model",
-        "isExtraImport": true,
-        "detail": "sklearn.linear_model",
+        "detail": "sklearn.metrics",
         "documentation": {}
     },
     {
@@ -128,6 +120,14 @@
         "importPath": "matplotlib.dates",
         "description": "matplotlib.dates",
         "detail": "matplotlib.dates",
+        "documentation": {}
+    },
+    {
+        "label": "LinearRegression",
+        "importPath": "sklearn.linear_model",
+        "description": "sklearn.linear_model",
+        "isExtraImport": true,
+        "detail": "sklearn.linear_model",
         "documentation": {}
     },
     {
@@ -168,6 +168,15 @@
         "description": "scipy.stats",
         "isExtraImport": true,
         "detail": "scipy.stats",
+        "documentation": {}
+    },
+    {
+        "label": "BASE_DIR",
+        "kind": 5,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "BASE_DIR = os.path.dirname(os.path.abspath(__file__))\n# Load model: Kết hợp BASE_DIR với folder models\ntry:\n    # Nếu folder models nằm TRONG thư mục ml, dùng đường dẫn này:\n    model_path = os.path.join(BASE_DIR, \"models\", \"anomaly_model.pkl\")\n    scaler_path = os.path.join(BASE_DIR, \"models\", \"scaler.pkl\") \n    # Kiểm tra xem file có tồn tại thật không trước khi load\n    if not os.path.exists(model_path) or not os.path.exists(scaler_path):\n        raise FileNotFoundError(f\"Không tìm thấy file tại: {model_path} hoặc {scaler_path}\")\n    model = joblib.load(model_path)",
+        "detail": "backend.ml.anomaly_detection",
         "documentation": {}
     },
     {
@@ -220,7 +229,7 @@
         "kind": 5,
         "importPath": "backend.ml.energyModel",
         "description": "backend.ml.energyModel",
-        "peekOfCode": "BASE_DIR = os.path.dirname(os.path.abspath(__file__))\nPKL_PATH = os.path.join(BASE_DIR, \"models\", \"trainmodel.pkl\")\ntry:\n    with open(PKL_PATH, 'rb') as f:\n        bundle = pickle.load(f)\n    data = json.loads(sys.argv[1])\nexcept Exception as e:\n    print(json.dumps({\"error\": str(e)}))\n    sys.exit(0)\ndf = pd.DataFrame(data)",
+        "peekOfCode": "BASE_DIR = os.path.dirname(os.path.abspath(__file__))\nPKL_PATH = os.path.join(BASE_DIR, \"models\", \"trainmodel.pkl\")\ntry:\n    # Đọc file model\n    if not os.path.exists(PKL_PATH):\n        raise FileNotFoundError(f\"Missing pkl file at {PKL_PATH}\")\n    with open(PKL_PATH, 'rb') as f:\n        bundle = pickle.load(f)\n    # Nhận dữ liệu từ Node.js\n    input_data = json.loads(sys.argv[1])",
         "detail": "backend.ml.energyModel",
         "documentation": {}
     },
@@ -229,197 +238,17 @@
         "kind": 5,
         "importPath": "backend.ml.energyModel",
         "description": "backend.ml.energyModel",
-        "peekOfCode": "PKL_PATH = os.path.join(BASE_DIR, \"models\", \"trainmodel.pkl\")\ntry:\n    with open(PKL_PATH, 'rb') as f:\n        bundle = pickle.load(f)\n    data = json.loads(sys.argv[1])\nexcept Exception as e:\n    print(json.dumps({\"error\": str(e)}))\n    sys.exit(0)\ndf = pd.DataFrame(data)\nif len(df) < 5:",
+        "peekOfCode": "PKL_PATH = os.path.join(BASE_DIR, \"models\", \"trainmodel.pkl\")\ntry:\n    # Đọc file model\n    if not os.path.exists(PKL_PATH):\n        raise FileNotFoundError(f\"Missing pkl file at {PKL_PATH}\")\n    with open(PKL_PATH, 'rb') as f:\n        bundle = pickle.load(f)\n    # Nhận dữ liệu từ Node.js\n    input_data = json.loads(sys.argv[1])\n    df = pd.DataFrame(input_data)",
         "detail": "backend.ml.energyModel",
         "documentation": {}
     },
     {
-        "label": "df",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "df = pd.DataFrame(data)\nif len(df) < 5:\n    print(json.dumps({\n        \"predicted_wh\": 0,\n        \"error\": \"Not enough data (need >=5)\"\n    }))\n    sys.exit(0)\ndf['total_wh'] = pd.to_numeric(df['total_wh'], errors='coerce').fillna(0)\nzone_id = df['zone_id'].iloc[0] if 'zone_id' in df.columns else None\nif zone_id and 'models' in bundle and zone_id in bundle['models']:",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "df['total_wh']",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "df['total_wh'] = pd.to_numeric(df['total_wh'], errors='coerce').fillna(0)\nzone_id = df['zone_id'].iloc[0] if 'zone_id' in df.columns else None\nif zone_id and 'models' in bundle and zone_id in bundle['models']:\n    saved_train_accuracy = bundle['models'][zone_id]['avg_accuracy']\nelse:\n    first_zone = list(bundle['models'].keys())[0]\n    saved_train_accuracy = bundle['models'][first_zone]['avg_accuracy']\n    zone_id = first_zone\ndf = df.sort_values('month').reset_index(drop=True)\ndf['time_index'] = np.arange(len(df))",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "zone_id",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "zone_id = df['zone_id'].iloc[0] if 'zone_id' in df.columns else None\nif zone_id and 'models' in bundle and zone_id in bundle['models']:\n    saved_train_accuracy = bundle['models'][zone_id]['avg_accuracy']\nelse:\n    first_zone = list(bundle['models'].keys())[0]\n    saved_train_accuracy = bundle['models'][first_zone]['avg_accuracy']\n    zone_id = first_zone\ndf = df.sort_values('month').reset_index(drop=True)\ndf['time_index'] = np.arange(len(df))\ndf['ma'] = df['total_wh'].rolling(window=3, min_periods=1).mean()",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "df",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "df = df.sort_values('month').reset_index(drop=True)\ndf['time_index'] = np.arange(len(df))\ndf['ma'] = df['total_wh'].rolling(window=3, min_periods=1).mean()\nmodel = LinearRegression()\nX = df[['time_index']]\ny = df['ma']   \nmodel.fit(X, y)\nTEST_SIZE = 3\ntest_df = df.iloc[-TEST_SIZE:]\nX_test = test_df[['time_index']]",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "df['time_index']",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "df['time_index'] = np.arange(len(df))\ndf['ma'] = df['total_wh'].rolling(window=3, min_periods=1).mean()\nmodel = LinearRegression()\nX = df[['time_index']]\ny = df['ma']   \nmodel.fit(X, y)\nTEST_SIZE = 3\ntest_df = df.iloc[-TEST_SIZE:]\nX_test = test_df[['time_index']]\ny_test = test_df['total_wh']",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "df['ma']",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "df['ma'] = df['total_wh'].rolling(window=3, min_periods=1).mean()\nmodel = LinearRegression()\nX = df[['time_index']]\ny = df['ma']   \nmodel.fit(X, y)\nTEST_SIZE = 3\ntest_df = df.iloc[-TEST_SIZE:]\nX_test = test_df[['time_index']]\ny_test = test_df['total_wh']\ny_pred_test = model.predict(X_test)",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "model",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "model = LinearRegression()\nX = df[['time_index']]\ny = df['ma']   \nmodel.fit(X, y)\nTEST_SIZE = 3\ntest_df = df.iloc[-TEST_SIZE:]\nX_test = test_df[['time_index']]\ny_test = test_df['total_wh']\ny_pred_test = model.predict(X_test)\ny_pred_test = np.maximum(y_pred_test, 0)",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "X",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "X = df[['time_index']]\ny = df['ma']   \nmodel.fit(X, y)\nTEST_SIZE = 3\ntest_df = df.iloc[-TEST_SIZE:]\nX_test = test_df[['time_index']]\ny_test = test_df['total_wh']\ny_pred_test = model.predict(X_test)\ny_pred_test = np.maximum(y_pred_test, 0)\nmse = mean_squared_error(y_test, y_pred_test)",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "y",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "y = df['ma']   \nmodel.fit(X, y)\nTEST_SIZE = 3\ntest_df = df.iloc[-TEST_SIZE:]\nX_test = test_df[['time_index']]\ny_test = test_df['total_wh']\ny_pred_test = model.predict(X_test)\ny_pred_test = np.maximum(y_pred_test, 0)\nmse = mean_squared_error(y_test, y_pred_test)\naccuracy_list = []",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "TEST_SIZE",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "TEST_SIZE = 3\ntest_df = df.iloc[-TEST_SIZE:]\nX_test = test_df[['time_index']]\ny_test = test_df['total_wh']\ny_pred_test = model.predict(X_test)\ny_pred_test = np.maximum(y_pred_test, 0)\nmse = mean_squared_error(y_test, y_pred_test)\naccuracy_list = []\nfor actual, pred in zip(y_test, y_pred_test):\n    if actual == 0:",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "test_df",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "test_df = df.iloc[-TEST_SIZE:]\nX_test = test_df[['time_index']]\ny_test = test_df['total_wh']\ny_pred_test = model.predict(X_test)\ny_pred_test = np.maximum(y_pred_test, 0)\nmse = mean_squared_error(y_test, y_pred_test)\naccuracy_list = []\nfor actual, pred in zip(y_test, y_pred_test):\n    if actual == 0:\n        acc = 0",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "X_test",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "X_test = test_df[['time_index']]\ny_test = test_df['total_wh']\ny_pred_test = model.predict(X_test)\ny_pred_test = np.maximum(y_pred_test, 0)\nmse = mean_squared_error(y_test, y_pred_test)\naccuracy_list = []\nfor actual, pred in zip(y_test, y_pred_test):\n    if actual == 0:\n        acc = 0\n    else:",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "y_test",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "y_test = test_df['total_wh']\ny_pred_test = model.predict(X_test)\ny_pred_test = np.maximum(y_pred_test, 0)\nmse = mean_squared_error(y_test, y_pred_test)\naccuracy_list = []\nfor actual, pred in zip(y_test, y_pred_test):\n    if actual == 0:\n        acc = 0\n    else:\n        acc = max(0, 100 - abs(actual - pred) / actual * 100)",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "y_pred_test",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "y_pred_test = model.predict(X_test)\ny_pred_test = np.maximum(y_pred_test, 0)\nmse = mean_squared_error(y_test, y_pred_test)\naccuracy_list = []\nfor actual, pred in zip(y_test, y_pred_test):\n    if actual == 0:\n        acc = 0\n    else:\n        acc = max(0, 100 - abs(actual - pred) / actual * 100)\n    accuracy_list.append(acc)",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "y_pred_test",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "y_pred_test = np.maximum(y_pred_test, 0)\nmse = mean_squared_error(y_test, y_pred_test)\naccuracy_list = []\nfor actual, pred in zip(y_test, y_pred_test):\n    if actual == 0:\n        acc = 0\n    else:\n        acc = max(0, 100 - abs(actual - pred) / actual * 100)\n    accuracy_list.append(acc)\navg_accuracy = np.mean(accuracy_list)",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "mse",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "mse = mean_squared_error(y_test, y_pred_test)\naccuracy_list = []\nfor actual, pred in zip(y_test, y_pred_test):\n    if actual == 0:\n        acc = 0\n    else:\n        acc = max(0, 100 - abs(actual - pred) / actual * 100)\n    accuracy_list.append(acc)\navg_accuracy = np.mean(accuracy_list)\nif avg_accuracy >= (saved_train_accuracy * 0.9):",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "accuracy_list",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "accuracy_list = []\nfor actual, pred in zip(y_test, y_pred_test):\n    if actual == 0:\n        acc = 0\n    else:\n        acc = max(0, 100 - abs(actual - pred) / actual * 100)\n    accuracy_list.append(acc)\navg_accuracy = np.mean(accuracy_list)\nif avg_accuracy >= (saved_train_accuracy * 0.9):\n    threshold_status = \"Đạt ngưỡng (Ổn định)\"",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "avg_accuracy",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "avg_accuracy = np.mean(accuracy_list)\nif avg_accuracy >= (saved_train_accuracy * 0.9):\n    threshold_status = \"Đạt ngưỡng (Ổn định)\"\nelse:\n    threshold_status = \"Dưới ngưỡng (Cần train lại model gốc)\"\nnext_index = np.array([[len(df)]])\nnext_pred = model.predict(next_index)[0]\nnext_pred = max(next_pred, 0)\nprint(json.dumps({\n    \"predicted_wh\": round(float(next_pred), 2),",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "next_index",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "next_index = np.array([[len(df)]])\nnext_pred = model.predict(next_index)[0]\nnext_pred = max(next_pred, 0)\nprint(json.dumps({\n    \"predicted_wh\": round(float(next_pred), 2),\n    \"model_used\": \"Linear Regression\",\n    \"zone_used\": str(zone_id),\n    \"evaluation\": {\n        \"mse\": round(float(mse), 2),\n        \"test_accuracy\": round(float(avg_accuracy), 2),",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "next_pred",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "next_pred = model.predict(next_index)[0]\nnext_pred = max(next_pred, 0)\nprint(json.dumps({\n    \"predicted_wh\": round(float(next_pred), 2),\n    \"model_used\": \"Linear Regression\",\n    \"zone_used\": str(zone_id),\n    \"evaluation\": {\n        \"mse\": round(float(mse), 2),\n        \"test_accuracy\": round(float(avg_accuracy), 2),\n        \"train_accuracy_from_pkl\": round(float(saved_train_accuracy), 2),",
-        "detail": "backend.ml.energyModel",
-        "documentation": {}
-    },
-    {
-        "label": "next_pred",
-        "kind": 5,
-        "importPath": "backend.ml.energyModel",
-        "description": "backend.ml.energyModel",
-        "peekOfCode": "next_pred = max(next_pred, 0)\nprint(json.dumps({\n    \"predicted_wh\": round(float(next_pred), 2),\n    \"model_used\": \"Linear Regression\",\n    \"zone_used\": str(zone_id),\n    \"evaluation\": {\n        \"mse\": round(float(mse), 2),\n        \"test_accuracy\": round(float(avg_accuracy), 2),\n        \"train_accuracy_from_pkl\": round(float(saved_train_accuracy), 2),\n        \"status\": threshold_status",
-        "detail": "backend.ml.energyModel",
+        "label": "mean_absolute_percentage_error",
+        "kind": 2,
+        "importPath": "backend.ml.trainModel",
+        "description": "backend.ml.trainModel",
+        "peekOfCode": "def mean_absolute_percentage_error(y_actual: np.ndarray, y_pred: np.ndarray) -> float:\n    mask = y_actual != 0\n    if not mask.any():\n        return 0.0\n    return float(np.mean(np.abs((y_actual[mask] - y_pred[mask]) / y_actual[mask])) * 100)\ndef fetch_from_neon() -> tuple[pd.DataFrame, pd.DataFrame]:\n    import psycopg2\n    from psycopg2.extras import RealDictCursor\n    conn = psycopg2.connect(NEON_CONNECTION_STRING)\n    with conn.cursor(cursor_factory=RealDictCursor) as cur:",
+        "detail": "backend.ml.trainModel",
         "documentation": {}
     },
     {
@@ -445,7 +274,7 @@
         "kind": 2,
         "importPath": "backend.ml.trainModel",
         "description": "backend.ml.trainModel",
-        "peekOfCode": "def get_price(df_prices: pd.DataFrame, date: pd.Timestamp) -> float:\n    subset = df_prices[df_prices[\"effective_date\"] <= date]\n    if subset.empty:\n        return float(df_prices[\"price_per_kwh\"].iloc[0])\n    return float(subset.sort_values(\"effective_date\", ascending=False).iloc[0][\"price_per_kwh\"])\n# 2. TRAIN + TEST + VẼ CHO 1 ZONE\ndef process_zone(ax, zone: str, zone_data: pd.DataFrame,\n                 df_prices: pd.DataFrame) -> dict | None:\n    zone_data = zone_data.sort_values(\"month\").reset_index(drop=True)\n    n_window  = N_TRAIN + N_TEST",
+        "peekOfCode": "def get_price(df_prices: pd.DataFrame, date: pd.Timestamp) -> float:\n    subset = df_prices[df_prices[\"effective_date\"] <= date]\n    if subset.empty:\n        return float(df_prices[\"price_per_kwh\"].iloc[0])\n    return float(subset.sort_values(\"effective_date\", ascending=False).iloc[0][\"price_per_kwh\"])\n# ── Train + Test + Vẽ cho 1 zone ─────────────────────────────────────────────\ndef process_zone(ax, zone: str, zone_data: pd.DataFrame,\n                 df_prices: pd.DataFrame) -> dict | None:\n    zone_data = zone_data.sort_values(\"month\").reset_index(drop=True)\n    n_window  = N_TRAIN + N_TEST",
         "detail": "backend.ml.trainModel",
         "documentation": {}
     },
@@ -454,7 +283,7 @@
         "kind": 2,
         "importPath": "backend.ml.trainModel",
         "description": "backend.ml.trainModel",
-        "peekOfCode": "def process_zone(ax, zone: str, zone_data: pd.DataFrame,\n                 df_prices: pd.DataFrame) -> dict | None:\n    zone_data = zone_data.sort_values(\"month\").reset_index(drop=True)\n    n_window  = N_TRAIN + N_TEST\n    if len(zone_data) < n_window:\n        ax.set_title(f\"ZONE {zone}\\n(Không đủ dữ liệu)\", color=\"gray\", fontsize=12)\n        ax.axis(\"off\")\n        return None\n    # Tách cửa sổ train / test ─────────────────────────────────────────\n    recent = zone_data.tail(n_window).reset_index(drop=True)",
+        "peekOfCode": "def process_zone(ax, zone: str, zone_data: pd.DataFrame,\n                 df_prices: pd.DataFrame) -> dict | None:\n    zone_data = zone_data.sort_values(\"month\").reset_index(drop=True)\n    n_window  = N_TRAIN + N_TEST\n    if len(zone_data) < n_window:\n        ax.set_title(f\"ZONE {zone}\\n(Không đủ dữ liệu)\", color=\"gray\", fontsize=12)\n        ax.axis(\"off\")\n        return None\n    # Tách cửa sổ train / test\n    recent = zone_data.tail(n_window).reset_index(drop=True)",
         "detail": "backend.ml.trainModel",
         "documentation": {}
     },
@@ -472,7 +301,7 @@
         "kind": 5,
         "importPath": "backend.ml.trainModel",
         "description": "backend.ml.trainModel",
-        "peekOfCode": "BACKEND_PUBLIC_DIR = os.path.abspath(\n    os.path.join(BASE_DIR, \"models\")\n)\nOUTPUT_PKL  = os.path.join(BACKEND_PUBLIC_DIR, \"trainmodel.pkl\")   \nFRONTEND_PUBLIC_DIR = os.path.abspath(\n    os.path.join(BASE_DIR, \"../../frontend/public\")\n)\nOUTPUT_PNG = os.path.join(FRONTEND_PUBLIC_DIR, \"energy_forecast.png\") \nNEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler\"",
+        "peekOfCode": "BACKEND_PUBLIC_DIR = os.path.abspath(\n    os.path.join(BASE_DIR, \"models\")\n)\nOUTPUT_PKL  = os.path.join(BACKEND_PUBLIC_DIR, \"trainmodel.pkl\")\nFRONTEND_PUBLIC_DIR = os.path.abspath(\n    os.path.join(BASE_DIR, \"../../frontend/public\")\n)\nOUTPUT_PNG = os.path.join(FRONTEND_PUBLIC_DIR, \"energy_forecast.png\")\nNEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler\"",
         "detail": "backend.ml.trainModel",
         "documentation": {}
     },
@@ -481,7 +310,7 @@
         "kind": 5,
         "importPath": "backend.ml.trainModel",
         "description": "backend.ml.trainModel",
-        "peekOfCode": "FRONTEND_PUBLIC_DIR = os.path.abspath(\n    os.path.join(BASE_DIR, \"../../frontend/public\")\n)\nOUTPUT_PNG = os.path.join(FRONTEND_PUBLIC_DIR, \"energy_forecast.png\") \nNEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler\"\n    \".ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n)\nN_TRAIN    = 3     \nN_TEST     = 2      ",
+        "peekOfCode": "FRONTEND_PUBLIC_DIR = os.path.abspath(\n    os.path.join(BASE_DIR, \"../../frontend/public\")\n)\nOUTPUT_PNG = os.path.join(FRONTEND_PUBLIC_DIR, \"energy_forecast.png\")\nNEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler\"\n    \".ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n)\nN_TRAIN    = 3\nN_TEST     = 2",
         "detail": "backend.ml.trainModel",
         "documentation": {}
     },
@@ -490,7 +319,7 @@
         "kind": 5,
         "importPath": "backend.ml.trainModel",
         "description": "backend.ml.trainModel",
-        "peekOfCode": "OUTPUT_PNG = os.path.join(FRONTEND_PUBLIC_DIR, \"energy_forecast.png\") \nNEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler\"\n    \".ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n)\nN_TRAIN    = 3     \nN_TEST     = 2      \nMA_WINDOW  = 3     \n# Lấy dữ liệu từ database neon\ndef fetch_from_neon() -> tuple[pd.DataFrame, pd.DataFrame]:",
+        "peekOfCode": "OUTPUT_PNG = os.path.join(FRONTEND_PUBLIC_DIR, \"energy_forecast.png\")\nNEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler\"\n    \".ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n)\nN_TRAIN    = 3\nN_TEST     = 2\nMA_WINDOW  = 3\ndef mean_absolute_percentage_error(y_actual: np.ndarray, y_pred: np.ndarray) -> float:\n    mask = y_actual != 0",
         "detail": "backend.ml.trainModel",
         "documentation": {}
     },
@@ -499,7 +328,7 @@
         "kind": 5,
         "importPath": "backend.ml.trainModel",
         "description": "backend.ml.trainModel",
-        "peekOfCode": "NEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler\"\n    \".ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n)\nN_TRAIN    = 3     \nN_TEST     = 2      \nMA_WINDOW  = 3     \n# Lấy dữ liệu từ database neon\ndef fetch_from_neon() -> tuple[pd.DataFrame, pd.DataFrame]:\n    import psycopg2",
+        "peekOfCode": "NEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler\"\n    \".ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n)\nN_TRAIN    = 3\nN_TEST     = 2\nMA_WINDOW  = 3\ndef mean_absolute_percentage_error(y_actual: np.ndarray, y_pred: np.ndarray) -> float:\n    mask = y_actual != 0\n    if not mask.any():",
         "detail": "backend.ml.trainModel",
         "documentation": {}
     },

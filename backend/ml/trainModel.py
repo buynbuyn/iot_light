@@ -6,35 +6,39 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, r2_score
 
 warnings.filterwarnings("ignore")
 
-# ── Cấu hình đường dẫn ────────────────────────────────────────────────────────
-BASE_DIR    = os.path.dirname(os.path.abspath(__file__))     
-ML_DIR      = BASE_DIR                                            
+BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
+ML_DIR      = BASE_DIR
 BACKEND_PUBLIC_DIR = os.path.abspath(
     os.path.join(BASE_DIR, "models")
 )
 
-OUTPUT_PKL  = os.path.join(BACKEND_PUBLIC_DIR, "trainmodel.pkl")   
-      
+OUTPUT_PKL  = os.path.join(BACKEND_PUBLIC_DIR, "trainmodel.pkl")
+
 FRONTEND_PUBLIC_DIR = os.path.abspath(
     os.path.join(BASE_DIR, "../../frontend/public")
 )
 
-OUTPUT_PNG = os.path.join(FRONTEND_PUBLIC_DIR, "energy_forecast.png") 
+OUTPUT_PNG = os.path.join(FRONTEND_PUBLIC_DIR, "energy_forecast.png")
 
 NEON_CONNECTION_STRING = (
     "postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler"
     ".ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require"
 )
-N_TRAIN    = 3     
-N_TEST     = 2      
-MA_WINDOW  = 3     
+N_TRAIN    = 3
+N_TEST     = 2
+MA_WINDOW  = 3
 
 
-# Lấy dữ liệu từ database neon
+def mean_absolute_percentage_error(y_actual: np.ndarray, y_pred: np.ndarray) -> float:
+    mask = y_actual != 0
+    if not mask.any():
+        return 0.0
+    return float(np.mean(np.abs((y_actual[mask] - y_pred[mask]) / y_actual[mask])) * 100)
+
 def fetch_from_neon() -> tuple[pd.DataFrame, pd.DataFrame]:
     import psycopg2
     from psycopg2.extras import RealDictCursor
@@ -84,7 +88,7 @@ def get_price(df_prices: pd.DataFrame, date: pd.Timestamp) -> float:
     return float(subset.sort_values("effective_date", ascending=False).iloc[0]["price_per_kwh"])
 
 
-# 2. TRAIN + TEST + VẼ CHO 1 ZONE
+# ── Train + Test + Vẽ cho 1 zone ─────────────────────────────────────────────
 def process_zone(ax, zone: str, zone_data: pd.DataFrame,
                  df_prices: pd.DataFrame) -> dict | None:
     zone_data = zone_data.sort_values("month").reset_index(drop=True)
@@ -95,7 +99,7 @@ def process_zone(ax, zone: str, zone_data: pd.DataFrame,
         ax.axis("off")
         return None
 
-    # Tách cửa sổ train / test ─────────────────────────────────────────
+    # Tách cửa sổ train / test
     recent = zone_data.tail(n_window).reset_index(drop=True)
     recent["time_index"] = np.arange(len(recent))
 
@@ -108,29 +112,39 @@ def process_zone(ax, zone: str, zone_data: pd.DataFrame,
     y_smoothed = pd.Series(y_raw).rolling(window=win, min_periods=1).mean().values
     train_df["smoothed_wh"] = y_smoothed
 
-    # Linear Regression
     X_train = train_df[["time_index"]]
     model   = LinearRegression().fit(X_train, y_smoothed)
 
-    # Dự đoán trên test set
     X_test   = test_df[["time_index"]]
     y_pred   = np.maximum(model.predict(X_test), 0)
     y_actual = test_df["total_wh"].values
     test_df  = test_df.copy()
     test_df["pred_wh"] = y_pred
 
-    # Metrics
-    train_mse = float(mean_squared_error(y_raw, model.predict(X_train)))
-    test_mse  = float(mean_squared_error(y_actual, y_pred))
-    acc_list  = [max(0.0, 100 - abs(a - p) / a * 100) if a else 0
-                 for a, p in zip(y_actual, y_pred)]
-    avg_acc   = float(np.mean(acc_list))
+    y_train_pred = model.predict(X_train)
+    rss_train = float(np.sum((y_smoothed - y_train_pred) ** 2))
 
-    # VẼ
+    rmse_test  = float(np.sqrt(mean_squared_error(y_actual, y_pred)))
+    rmse_train = float(np.sqrt(mean_squared_error(y_smoothed, y_train_pred)))
+
+    if len(y_actual) >= 2:
+        r2_test = float(r2_score(y_actual, y_pred))
+    else:
+        ss_res = float(np.sum((y_actual - y_pred) ** 2))
+        ss_tot = float(np.sum((y_actual - np.mean(y_actual)) ** 2))
+        r2_test = 1 - ss_res / ss_tot if ss_tot != 0 else 0.0
+
+    r2_train = float(r2_score(y_smoothed, y_train_pred))
+
+    mape_test  = mean_absolute_percentage_error(y_actual, y_pred)
+    mape_train = mean_absolute_percentage_error(y_smoothed, y_train_pred)
+
+    avg_acc = max(0.0, 100 - mape_test)
+
+    # ── Vẽ biểu đồ ───────────────────────────────────────────────────────────
     last_train_month = train_df["month"].iloc[-1]
     last_smooth_wh   = float(train_df["smoothed_wh"].iloc[-1])
 
-    # Lịch sử ngoài cửa sổ (xám nhạt)
     history = zone_data[zone_data["month"] < train_df["month"].iloc[0]]
     if not history.empty:
         ax.plot(history["month"], history["total_wh"],
@@ -210,8 +224,8 @@ def process_zone(ax, zone: str, zone_data: pd.DataFrame,
         first_act  = False
 
     ax.set_title(
-        f"ZONE {zone} \n"
-        f"Avg Accuracy: {avg_acc:.1f}%  |  Test MSE: {test_mse:.2f}  |  Train MSE: {train_mse:.2f}",
+        f"ZONE {zone}\n"
+        f"RMSE: {rmse_test:.2f}  |  R²: {r2_test:.4f}  |  MAPE: {mape_test:.2f}%  |  Acc: {avg_acc:.1f}%",
         fontsize=11, fontweight="bold",
     )
     ax.set_ylabel("Wh", fontsize=10)
@@ -220,15 +234,20 @@ def process_zone(ax, zone: str, zone_data: pd.DataFrame,
     ax.grid(True, linestyle="--", alpha=0.35)
     ax.legend(fontsize=8, loc="upper left")
 
+    # ── In báo cáo console ────────────────────────────────────────────────────
     print(f"\n  ZONE {zone}")
     print(f"    Train months : {list(train_df['month'].dt.strftime('%m/%Y'))}")
     print(f"    Raw Wh       : {[round(v,2) for v in y_raw]}")
     print(f"    Smoothed Wh  : {[round(v,2) for v in y_smoothed]}")
+    print(f"    RSS (train)  : {rss_train:.4f}  ← OLS tối thiểu hóa giá trị này")
     for idx, row in enumerate(test_df.itertuples()):
         print(f"    [Test {idx+1}] {row.month.strftime('%m/%Y')}  "
-              f"Pred: {row.pred_wh:.4f} Wh  Actual: {row.total_wh:.4f} Wh  "
-              f"Acc: {acc_list[idx]:.2f}%")
-    print(f"    Avg Accuracy : {avg_acc:.2f}%  |  Test MSE: {test_mse:.4f}  |  Train MSE: {train_mse:.4f}")
+              f"Pred: {row.pred_wh:.4f} Wh  Actual: {row.total_wh:.4f} Wh")
+    print(f"    ── Metrics (test set) ──────────────────────────────────────────")
+    print(f"    RMSE  = √MSE         : {rmse_test:.4f}  (train: {rmse_train:.4f})")
+    print(f"    R²                   : {r2_test:.4f}  (train: {r2_train:.4f})  [1=hoàn hảo]")
+    print(f"    MAPE                 : {mape_test:.2f}%  (train: {mape_train:.2f}%)")
+    print(f"    Accuracy (100-MAPE)  : {avg_acc:.2f}%")
     print("    " + "-" * 74)
 
     return {
@@ -242,11 +261,16 @@ def process_zone(ax, zone: str, zone_data: pd.DataFrame,
         "y_smoothed":      y_smoothed.tolist(),
         "coef":            float(model.coef_[0]),
         "intercept":       float(model.intercept_),
-
         "last_time_index": int(recent["time_index"].iloc[-1]),
-        "train_mse":       train_mse,
-        "test_mse":        test_mse,
-        "avg_accuracy":    avg_acc,
+
+        "rss_train":       rss_train,    
+        "rmse_train":      rmse_train,   
+        "rmse_test":       rmse_test,   
+        "r2_train":        r2_train,     
+        "r2_test":         r2_test,      
+        "mape_train":      mape_train,   
+        "mape_test":       mape_test,    
+        "avg_accuracy":    avg_acc,      
     }
 
 
@@ -262,7 +286,6 @@ def main():
     zones = sorted(df_energy["zone_id"].unique())
     print(f"  Zones: {zones}")
 
-
     ncols = min(3, len(zones))
     nrows = (len(zones) + ncols - 1) // ncols
     fig, axes = plt.subplots(nrows, ncols,
@@ -270,7 +293,8 @@ def main():
                              squeeze=False)
 
     print("\n" + "=" * 80)
-    print("BÁO CÁO TRAIN + TEST  –  MA Smoothing + Linear Regression")
+    print("BÁO CÁO TRAIN + TEST  –  MA Smoothing + Linear Regression (OLS)")
+    print("Metrics: RSS (OLS) | RMSE | R² | MAPE")
     print("=" * 80)
 
     all_models: dict[str, dict] = {}
@@ -289,7 +313,8 @@ def main():
         axes[row_j][col_j].set_visible(False)
 
     fig.suptitle(
-        f"Train: {N_TRAIN} tháng  |  Test: {N_TEST} tháng",
+        f"Train: {N_TRAIN} tháng  |  Test: {N_TEST} tháng  "
+        f"|  Metrics: RMSE / R² / MAPE",
         fontsize=14, fontweight="bold", y=1.01,
     )
     plt.tight_layout()
