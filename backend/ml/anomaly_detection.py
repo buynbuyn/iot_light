@@ -33,10 +33,10 @@ try:
 
     model = joblib.load(model_path)
     scaler = joblib.load(scaler_path)
-    print("✅ Models loaded successfully!")
+    print("Models loaded successfully!")
 
 except Exception as e:
-    print(f"❌ Error loading model: {e}")
+    print(f"Error loading model: {e}")
     sys.exit(1)
 
 # ================= DB CONFIG =================
@@ -58,7 +58,7 @@ for log_id in log_ids:
         SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp
         FROM sensor_logs WHERE log_id = %s
     """, (log_id,))
-    
+
     row = cur.fetchone()
     if not row:
         continue
@@ -76,7 +76,7 @@ for log_id in log_ids:
 
     # ================= RULE 1: LAMP FAILURE =================
     if int(row[2]) == 0 and int(row[4]) == 0:
-        print(f"🚨 Lamp Failure at Zone {zone_id}")
+        print(f"Lamp Failure at Zone {zone_id}")
 
         cur.execute("""
             INSERT INTO alerts (zone_id, alert_type, detected_time, severity, status)
@@ -87,7 +87,7 @@ for log_id in log_ids:
 
         # 🔥 TELEGRAM
         send_telegram(
-            f"🚨 LAMP FAILURE\nZone: {zone_id}\nTime: {detected_time}"
+            f"LAMP FAILURE\nZone: {zone_id}\nTime: {detected_time}"
         )
 
         continue
@@ -101,7 +101,7 @@ for log_id in log_ids:
     z_anomaly = (z_scores > 1.5).any()
 
     if iso_anomaly or z_anomaly:
-        print(f"⚠️ Anomaly Detected for Log {log_id}")
+        print(f"Anomaly Detected for Log {log_id}")
 
         cur.execute("""
             INSERT INTO alerts (zone_id, alert_type, detected_time, severity, status)
@@ -112,11 +112,11 @@ for log_id in log_ids:
 
         # 🔥 TELEGRAM
         send_telegram(
-            f"⚠️ ENERGY ANOMALY\nZone: {zone_id}\nTime: {detected_time}"
+            f"ENERGY ANOMALY\nZone: {zone_id}\nTime: {detected_time}"
         )
 
     else:
-        print(f"✅ Log {log_id} is Normal")
+        print(f"Log {log_id} is Normal")
 
 # ================= COMMIT =================
 conn.commit()
