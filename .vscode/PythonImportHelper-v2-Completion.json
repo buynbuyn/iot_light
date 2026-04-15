@@ -54,6 +54,15 @@
         "documentation": {}
     },
     {
+        "label": "requests",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "requests",
+        "description": "requests",
+        "detail": "requests",
+        "documentation": {}
+    },
+    {
         "label": "json",
         "kind": 6,
         "isExtraImport": true,
@@ -96,6 +105,22 @@
         "documentation": {}
     },
     {
+        "label": "LinearRegression",
+        "importPath": "sklearn.linear_model",
+        "description": "sklearn.linear_model",
+        "isExtraImport": true,
+        "detail": "sklearn.linear_model",
+        "documentation": {}
+    },
+    {
+        "label": "LinearRegression",
+        "importPath": "sklearn.linear_model",
+        "description": "sklearn.linear_model",
+        "isExtraImport": true,
+        "detail": "sklearn.linear_model",
+        "documentation": {}
+    },
+    {
         "label": "warnings",
         "kind": 6,
         "isExtraImport": true,
@@ -120,14 +145,6 @@
         "importPath": "matplotlib.dates",
         "description": "matplotlib.dates",
         "detail": "matplotlib.dates",
-        "documentation": {}
-    },
-    {
-        "label": "LinearRegression",
-        "importPath": "sklearn.linear_model",
-        "description": "sklearn.linear_model",
-        "isExtraImport": true,
-        "detail": "sklearn.linear_model",
         "documentation": {}
     },
     {
@@ -171,11 +188,38 @@
         "documentation": {}
     },
     {
+        "label": "send_telegram",
+        "kind": 2,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "def send_telegram(msg):\n    url = f\"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage\"\n    data = {\n        \"chat_id\": CHAT_ID,\n        \"text\": msg\n    }\n    try:\n        requests.post(url, data=data)\n    except Exception as e:\n        print(\"Send Telegram failed:\", e)",
+        "detail": "backend.ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "BOT_TOKEN",
+        "kind": 5,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "BOT_TOKEN = \"8778153970:AAEYNL78RkMRDv0nBegde8K2mkOiMkLYv5M\"\nCHAT_ID = \"8039711385\"\ndef send_telegram(msg):\n    url = f\"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage\"\n    data = {\n        \"chat_id\": CHAT_ID,\n        \"text\": msg\n    }\n    try:\n        requests.post(url, data=data)",
+        "detail": "backend.ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "CHAT_ID",
+        "kind": 5,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "CHAT_ID = \"8039711385\"\ndef send_telegram(msg):\n    url = f\"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage\"\n    data = {\n        \"chat_id\": CHAT_ID,\n        \"text\": msg\n    }\n    try:\n        requests.post(url, data=data)\n    except Exception as e:",
+        "detail": "backend.ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
         "label": "BASE_DIR",
         "kind": 5,
         "importPath": "backend.ml.anomaly_detection",
         "description": "backend.ml.anomaly_detection",
-        "peekOfCode": "BASE_DIR = os.path.dirname(os.path.abspath(__file__))\n# Load model: Kết hợp BASE_DIR với folder models\ntry:\n    # Nếu folder models nằm TRONG thư mục ml, dùng đường dẫn này:\n    model_path = os.path.join(BASE_DIR, \"models\", \"anomaly_model.pkl\")\n    scaler_path = os.path.join(BASE_DIR, \"models\", \"scaler.pkl\") \n    # Kiểm tra xem file có tồn tại thật không trước khi load\n    if not os.path.exists(model_path) or not os.path.exists(scaler_path):\n        raise FileNotFoundError(f\"Không tìm thấy file tại: {model_path} hoặc {scaler_path}\")\n    model = joblib.load(model_path)",
+        "peekOfCode": "BASE_DIR = os.path.dirname(os.path.abspath(__file__))\ntry:\n    model_path = os.path.join(BASE_DIR, \"models\", \"anomaly_model.pkl\")\n    scaler_path = os.path.join(BASE_DIR, \"models\", \"scaler.pkl\")\n    if not os.path.exists(model_path) or not os.path.exists(scaler_path):\n        raise FileNotFoundError(\"Model or Scaler not found\")\n    model = joblib.load(model_path)\n    scaler = joblib.load(scaler_path)\n    print(\"Models loaded successfully!\")\nexcept Exception as e:",
         "detail": "backend.ml.anomaly_detection",
         "documentation": {}
     },
@@ -184,7 +228,7 @@
         "kind": 5,
         "importPath": "backend.ml.anomaly_detection",
         "description": "backend.ml.anomaly_detection",
-        "peekOfCode": "DB_DIRECT_URL = \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require\"\nif len(sys.argv) < 2:\n    sys.exit(0)\nlog_ids = [int(x) for x in sys.argv[1].split(\",\")]\nconn = psycopg2.connect(DB_DIRECT_URL)\ncur = conn.cursor()\nfeature_cols = [\"brightness_level\", \"current_value\", \"voltage\", \"power_consumption\"]\nfor log_id in log_ids:\n    cur.execute(\"SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp FROM sensor_logs WHERE log_id = %s\", (log_id,))\n    row_db = cur.fetchone()",
+        "peekOfCode": "DB_DIRECT_URL = \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require\"\nif len(sys.argv) < 2:\n    sys.exit(0)\nlog_ids = [int(x) for x in sys.argv[1].split(\",\")]\nconn = psycopg2.connect(DB_DIRECT_URL)\ncur = conn.cursor()\nfeature_cols = [\"brightness_level\", \"voltage\", \"power_consumption\"]\n# ================= MAIN LOOP =================\nfor log_id in log_ids:\n    cur.execute(\"\"\"",
         "detail": "backend.ml.anomaly_detection",
         "documentation": {}
     },
@@ -193,7 +237,7 @@
         "kind": 5,
         "importPath": "backend.ml.anomaly_detection",
         "description": "backend.ml.anomaly_detection",
-        "peekOfCode": "log_ids = [int(x) for x in sys.argv[1].split(\",\")]\nconn = psycopg2.connect(DB_DIRECT_URL)\ncur = conn.cursor()\nfeature_cols = [\"brightness_level\", \"current_value\", \"voltage\", \"power_consumption\"]\nfor log_id in log_ids:\n    cur.execute(\"SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp FROM sensor_logs WHERE log_id = %s\", (log_id,))\n    row_db = cur.fetchone()\n    if not row_db: continue\n    # Chuyển dữ liệu sang DataFrame\n    df_new = pd.DataFrame([row_db[2:6]], columns=feature_cols).fillna(0)",
+        "peekOfCode": "log_ids = [int(x) for x in sys.argv[1].split(\",\")]\nconn = psycopg2.connect(DB_DIRECT_URL)\ncur = conn.cursor()\nfeature_cols = [\"brightness_level\", \"voltage\", \"power_consumption\"]\n# ================= MAIN LOOP =================\nfor log_id in log_ids:\n    cur.execute(\"\"\"\n        SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp\n        FROM sensor_logs WHERE log_id = %s\n    \"\"\", (log_id,))",
         "detail": "backend.ml.anomaly_detection",
         "documentation": {}
     },
@@ -202,7 +246,7 @@
         "kind": 5,
         "importPath": "backend.ml.anomaly_detection",
         "description": "backend.ml.anomaly_detection",
-        "peekOfCode": "conn = psycopg2.connect(DB_DIRECT_URL)\ncur = conn.cursor()\nfeature_cols = [\"brightness_level\", \"current_value\", \"voltage\", \"power_consumption\"]\nfor log_id in log_ids:\n    cur.execute(\"SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp FROM sensor_logs WHERE log_id = %s\", (log_id,))\n    row_db = cur.fetchone()\n    if not row_db: continue\n    # Chuyển dữ liệu sang DataFrame\n    df_new = pd.DataFrame([row_db[2:6]], columns=feature_cols).fillna(0)\n    zone_id = row_db[1]",
+        "peekOfCode": "conn = psycopg2.connect(DB_DIRECT_URL)\ncur = conn.cursor()\nfeature_cols = [\"brightness_level\", \"voltage\", \"power_consumption\"]\n# ================= MAIN LOOP =================\nfor log_id in log_ids:\n    cur.execute(\"\"\"\n        SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp\n        FROM sensor_logs WHERE log_id = %s\n    \"\"\", (log_id,))\n    row = cur.fetchone()",
         "detail": "backend.ml.anomaly_detection",
         "documentation": {}
     },
@@ -211,7 +255,7 @@
         "kind": 5,
         "importPath": "backend.ml.anomaly_detection",
         "description": "backend.ml.anomaly_detection",
-        "peekOfCode": "cur = conn.cursor()\nfeature_cols = [\"brightness_level\", \"current_value\", \"voltage\", \"power_consumption\"]\nfor log_id in log_ids:\n    cur.execute(\"SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp FROM sensor_logs WHERE log_id = %s\", (log_id,))\n    row_db = cur.fetchone()\n    if not row_db: continue\n    # Chuyển dữ liệu sang DataFrame\n    df_new = pd.DataFrame([row_db[2:6]], columns=feature_cols).fillna(0)\n    zone_id = row_db[1]\n    detected_time = row_db[6]",
+        "peekOfCode": "cur = conn.cursor()\nfeature_cols = [\"brightness_level\", \"voltage\", \"power_consumption\"]\n# ================= MAIN LOOP =================\nfor log_id in log_ids:\n    cur.execute(\"\"\"\n        SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp\n        FROM sensor_logs WHERE log_id = %s\n    \"\"\", (log_id,))\n    row = cur.fetchone()\n    if not row:",
         "detail": "backend.ml.anomaly_detection",
         "documentation": {}
     },
@@ -220,7 +264,7 @@
         "kind": 5,
         "importPath": "backend.ml.anomaly_detection",
         "description": "backend.ml.anomaly_detection",
-        "peekOfCode": "feature_cols = [\"brightness_level\", \"current_value\", \"voltage\", \"power_consumption\"]\nfor log_id in log_ids:\n    cur.execute(\"SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp FROM sensor_logs WHERE log_id = %s\", (log_id,))\n    row_db = cur.fetchone()\n    if not row_db: continue\n    # Chuyển dữ liệu sang DataFrame\n    df_new = pd.DataFrame([row_db[2:6]], columns=feature_cols).fillna(0)\n    zone_id = row_db[1]\n    detected_time = row_db[6]\n    # --- KIỂM TRA TRẠNG THÁI ZONE ---",
+        "peekOfCode": "feature_cols = [\"brightness_level\", \"voltage\", \"power_consumption\"]\n# ================= MAIN LOOP =================\nfor log_id in log_ids:\n    cur.execute(\"\"\"\n        SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp\n        FROM sensor_logs WHERE log_id = %s\n    \"\"\", (log_id,))\n    row = cur.fetchone()\n    if not row:\n        continue",
         "detail": "backend.ml.anomaly_detection",
         "documentation": {}
     },
@@ -229,7 +273,7 @@
         "kind": 5,
         "importPath": "backend.ml.energyModel",
         "description": "backend.ml.energyModel",
-        "peekOfCode": "BASE_DIR = os.path.dirname(os.path.abspath(__file__))\nPKL_PATH = os.path.join(BASE_DIR, \"models\", \"trainmodel.pkl\")\ntry:\n    # Đọc file model\n    if not os.path.exists(PKL_PATH):\n        raise FileNotFoundError(f\"Missing pkl file at {PKL_PATH}\")\n    with open(PKL_PATH, 'rb') as f:\n        bundle = pickle.load(f)\n    # Nhận dữ liệu từ Node.js\n    input_data = json.loads(sys.argv[1])",
+        "peekOfCode": "BASE_DIR = os.path.dirname(os.path.abspath(__file__))\nPKL_PATH = os.path.join(BASE_DIR, \"models\", \"trainmodel.pkl\")\ntry:\n    if not os.path.exists(PKL_PATH):\n        raise FileNotFoundError(f\"Missing pkl file at {PKL_PATH}\")\n    with open(PKL_PATH, 'rb') as f:\n        bundle = pickle.load(f)\n    input_data = json.loads(sys.argv[1])\n    df = pd.DataFrame(input_data)\n    if df.empty:",
         "detail": "backend.ml.energyModel",
         "documentation": {}
     },
@@ -238,7 +282,7 @@
         "kind": 5,
         "importPath": "backend.ml.energyModel",
         "description": "backend.ml.energyModel",
-        "peekOfCode": "PKL_PATH = os.path.join(BASE_DIR, \"models\", \"trainmodel.pkl\")\ntry:\n    # Đọc file model\n    if not os.path.exists(PKL_PATH):\n        raise FileNotFoundError(f\"Missing pkl file at {PKL_PATH}\")\n    with open(PKL_PATH, 'rb') as f:\n        bundle = pickle.load(f)\n    # Nhận dữ liệu từ Node.js\n    input_data = json.loads(sys.argv[1])\n    df = pd.DataFrame(input_data)",
+        "peekOfCode": "PKL_PATH = os.path.join(BASE_DIR, \"models\", \"trainmodel.pkl\")\ntry:\n    if not os.path.exists(PKL_PATH):\n        raise FileNotFoundError(f\"Missing pkl file at {PKL_PATH}\")\n    with open(PKL_PATH, 'rb') as f:\n        bundle = pickle.load(f)\n    input_data = json.loads(sys.argv[1])\n    df = pd.DataFrame(input_data)\n    if df.empty:\n        raise ValueError(\"Input data is empty\")",
         "detail": "backend.ml.energyModel",
         "documentation": {}
     },
@@ -337,7 +381,7 @@
         "kind": 2,
         "importPath": "backend.ml.train_anomaly",
         "description": "backend.ml.train_anomaly",
-        "peekOfCode": "def train_model():\n    print(\"🔄 1. Đang kết nối DB và lấy dữ liệu...\")\n    try:\n        conn = psycopg2.connect(DB_DIRECT_URL)\n        query = \"SELECT brightness_level, current_value, voltage, power_consumption, timestamp FROM sensor_logs ORDER BY timestamp ASC LIMIT 500\"\n        df = pd.read_sql(query, conn)\n        conn.close()\n    except Exception as e:\n        print(f\"❌ Lỗi kết nối DB: {e}\")\n        return",
+        "peekOfCode": "def train_model():\n    print(\"[1] Loading data from DB...\")\n    try:\n        conn = psycopg2.connect(DB_DIRECT_URL)\n        query = \"\"\"\n            SELECT brightness_level, voltage, power_consumption\n            FROM sensor_logs\n            ORDER BY timestamp ASC\n            LIMIT 500\n        \"\"\"",
         "detail": "backend.ml.train_anomaly",
         "documentation": {}
     },
@@ -346,7 +390,7 @@
         "kind": 5,
         "importPath": "backend.ml.train_anomaly",
         "description": "backend.ml.train_anomaly",
-        "peekOfCode": "DB_DIRECT_URL = \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require\"\ndef train_model():\n    print(\"🔄 1. Đang kết nối DB và lấy dữ liệu...\")\n    try:\n        conn = psycopg2.connect(DB_DIRECT_URL)\n        query = \"SELECT brightness_level, current_value, voltage, power_consumption, timestamp FROM sensor_logs ORDER BY timestamp ASC LIMIT 500\"\n        df = pd.read_sql(query, conn)\n        conn.close()\n    except Exception as e:\n        print(f\"❌ Lỗi kết nối DB: {e}\")",
+        "peekOfCode": "DB_DIRECT_URL = \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require\"\ndef train_model():\n    print(\"[1] Loading data from DB...\")\n    try:\n        conn = psycopg2.connect(DB_DIRECT_URL)\n        query = \"\"\"\n            SELECT brightness_level, voltage, power_consumption\n            FROM sensor_logs\n            ORDER BY timestamp ASC\n            LIMIT 500",
         "detail": "backend.ml.train_anomaly",
         "documentation": {}
     },
