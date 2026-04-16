@@ -75,7 +75,7 @@ try:
     slope = float(model.coef_[0])
     intercept = float(model.intercept_)
 
-    json.dumps({
+    print(json.dumps({
         "predicted_wh": round(final_prediction, 2),
         "model_used": "Linear Regressions",
         "zone_used": target_zone,
@@ -83,16 +83,16 @@ try:
         "ma_window": ma_window,
         "ma_values": [round(float(x), 2) for x in ma_values],
 
-        "slope": round(slope, 4),
-        "intercept": round(intercept, 4),
+        "slope": round(slope, 50),
+        "intercept": round(intercept, 50),
 
         "evaluation": {
             "mse": round(mse, 2),
             "avg_accuracy": round(avg_acc, 2),
             "train_accuracy_from_pkl": round(saved_train_accuracy, 2),
-            "status": "Ổn định" if avg_acc >= 90 else "Cần train lại"
+            "status": "On dinh" if avg_acc >= 90 else "Can train lai"
         }
-    })
+    }))
 
 except Exception as e:
     print(json.dumps({

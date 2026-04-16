@@ -28,10 +28,11 @@ async function updateEnergySummary({ zone_id, power_consumption, timestamp }) {
             const prevTime = new Date(prevLogResult.rows[0].timestamp);
 
             const deltaMs = currentTime - prevTime;
-            const deltaHours = deltaMs / (1000 * 60 * 60);
+            const deltaHours = deltaMs / (10 * 60 * 60);
 
             // Wh = W × h
             wh = power_consumption * deltaHours;
+
 
             console.log(
                 `⚡ Zone ${zone_id} | Δt=${deltaHours.toFixed(6)}h | Energy=${wh.toFixed(4)} Wh`
@@ -144,9 +145,8 @@ async function predictEnergyForZone(zone_id) {
                 }
 
                 try {
-                    console.log("📦 Raw Python output:", output);
-
                     const res = JSON.parse(output.trim());
+                    console.log(output)
 
                     const predicted_wh = res.predicted_wh;
 
