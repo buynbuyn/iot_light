@@ -192,7 +192,7 @@
         "kind": 2,
         "importPath": "backend.ml.anomaly_detection",
         "description": "backend.ml.anomaly_detection",
-        "peekOfCode": "def send_telegram(msg):\n    url = f\"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage\"\n    data = {\n        \"chat_id\": CHAT_ID,\n        \"text\": msg\n    }\n    try:\n        requests.post(url, data=data)\n    except Exception as e:\n        print(\"Send Telegram failed:\", e)",
+        "peekOfCode": "def send_telegram(msg):\n    url = f\"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage\"\n    data = {\n        \"chat_id\": CHAT_ID,\n        \"text\": msg\n    }\n    try:\n        requests.post(url, data=data, timeout=10)\n    except Exception as e:\n        print(\"Send Telegram failed:\", e)",
         "detail": "backend.ml.anomaly_detection",
         "documentation": {}
     },
@@ -201,7 +201,7 @@
         "kind": 5,
         "importPath": "backend.ml.anomaly_detection",
         "description": "backend.ml.anomaly_detection",
-        "peekOfCode": "BOT_TOKEN = \"8778153970:AAEYNL78RkMRDv0nBegde8K2mkOiMkLYv5M\"\nCHAT_ID = \"8039711385\"\ndef send_telegram(msg):\n    url = f\"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage\"\n    data = {\n        \"chat_id\": CHAT_ID,\n        \"text\": msg\n    }\n    try:\n        requests.post(url, data=data)",
+        "peekOfCode": "BOT_TOKEN = \"8778153970:AAEYNL78RkMRDv0nBegde8K2mkOiMkLYv5M\"\nCHAT_ID = \"8039711385\"\ndef send_telegram(msg):\n    url = f\"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage\"\n    data = {\n        \"chat_id\": CHAT_ID,\n        \"text\": msg\n    }\n    try:\n        requests.post(url, data=data, timeout=10)",
         "detail": "backend.ml.anomaly_detection",
         "documentation": {}
     },
@@ -210,7 +210,7 @@
         "kind": 5,
         "importPath": "backend.ml.anomaly_detection",
         "description": "backend.ml.anomaly_detection",
-        "peekOfCode": "CHAT_ID = \"8039711385\"\ndef send_telegram(msg):\n    url = f\"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage\"\n    data = {\n        \"chat_id\": CHAT_ID,\n        \"text\": msg\n    }\n    try:\n        requests.post(url, data=data)\n    except Exception as e:",
+        "peekOfCode": "CHAT_ID = \"8039711385\"\ndef send_telegram(msg):\n    url = f\"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage\"\n    data = {\n        \"chat_id\": CHAT_ID,\n        \"text\": msg\n    }\n    try:\n        requests.post(url, data=data, timeout=10)\n    except Exception as e:",
         "detail": "backend.ml.anomaly_detection",
         "documentation": {}
     },
@@ -219,7 +219,25 @@
         "kind": 5,
         "importPath": "backend.ml.anomaly_detection",
         "description": "backend.ml.anomaly_detection",
-        "peekOfCode": "BASE_DIR = os.path.dirname(os.path.abspath(__file__))\ntry:\n    model_path = os.path.join(BASE_DIR, \"models\", \"anomaly_model.pkl\")\n    scaler_path = os.path.join(BASE_DIR, \"models\", \"scaler.pkl\")\n    if not os.path.exists(model_path) or not os.path.exists(scaler_path):\n        raise FileNotFoundError(\"Model or Scaler not found\")\n    model = joblib.load(model_path)\n    scaler = joblib.load(scaler_path)\n    print(\"Models loaded successfully!\")\nexcept Exception as e:",
+        "peekOfCode": "BASE_DIR = os.path.dirname(os.path.abspath(__file__))\nmodel = joblib.load(os.path.join(BASE_DIR, \"models\", \"anomaly_model.pkl\"))\nscaler = joblib.load(os.path.join(BASE_DIR, \"models\", \"scaler.pkl\"))\nprint(\"Model loaded OK\")\n# ================= DB =================\nDB_DIRECT_URL = \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require\"\nif len(sys.argv) < 2:\n    sys.exit(0)\nlog_ids = [int(x) for x in sys.argv[1].split(\",\")]\nconn = psycopg2.connect(DB_DIRECT_URL)",
+        "detail": "backend.ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "model",
+        "kind": 5,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "model = joblib.load(os.path.join(BASE_DIR, \"models\", \"anomaly_model.pkl\"))\nscaler = joblib.load(os.path.join(BASE_DIR, \"models\", \"scaler.pkl\"))\nprint(\"Model loaded OK\")\n# ================= DB =================\nDB_DIRECT_URL = \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require\"\nif len(sys.argv) < 2:\n    sys.exit(0)\nlog_ids = [int(x) for x in sys.argv[1].split(\",\")]\nconn = psycopg2.connect(DB_DIRECT_URL)\ncur = conn.cursor()",
+        "detail": "backend.ml.anomaly_detection",
+        "documentation": {}
+    },
+    {
+        "label": "scaler",
+        "kind": 5,
+        "importPath": "backend.ml.anomaly_detection",
+        "description": "backend.ml.anomaly_detection",
+        "peekOfCode": "scaler = joblib.load(os.path.join(BASE_DIR, \"models\", \"scaler.pkl\"))\nprint(\"Model loaded OK\")\n# ================= DB =================\nDB_DIRECT_URL = \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require\"\nif len(sys.argv) < 2:\n    sys.exit(0)\nlog_ids = [int(x) for x in sys.argv[1].split(\",\")]\nconn = psycopg2.connect(DB_DIRECT_URL)\ncur = conn.cursor()\n# ================= FEATURE CONSISTENCY (QUAN TRỌNG NHẤT) =================",
         "detail": "backend.ml.anomaly_detection",
         "documentation": {}
     },
@@ -228,7 +246,7 @@
         "kind": 5,
         "importPath": "backend.ml.anomaly_detection",
         "description": "backend.ml.anomaly_detection",
-        "peekOfCode": "DB_DIRECT_URL = \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require\"\nif len(sys.argv) < 2:\n    sys.exit(0)\nlog_ids = [int(x) for x in sys.argv[1].split(\",\")]\nconn = psycopg2.connect(DB_DIRECT_URL)\ncur = conn.cursor()\nfeature_cols = [\"brightness_level\", \"voltage\", \"power_consumption\"]\n# ================= MAIN LOOP =================\nfor log_id in log_ids:\n    cur.execute(\"\"\"",
+        "peekOfCode": "DB_DIRECT_URL = \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require\"\nif len(sys.argv) < 2:\n    sys.exit(0)\nlog_ids = [int(x) for x in sys.argv[1].split(\",\")]\nconn = psycopg2.connect(DB_DIRECT_URL)\ncur = conn.cursor()\n# ================= FEATURE CONSISTENCY (QUAN TRỌNG NHẤT) =================\nfeature_cols = [\"current_value\", \"brightness_level\", \"voltage\", \"power_consumption\"]\nfor log_id in log_ids:\n    cur.execute(\"\"\"",
         "detail": "backend.ml.anomaly_detection",
         "documentation": {}
     },
@@ -237,7 +255,7 @@
         "kind": 5,
         "importPath": "backend.ml.anomaly_detection",
         "description": "backend.ml.anomaly_detection",
-        "peekOfCode": "log_ids = [int(x) for x in sys.argv[1].split(\",\")]\nconn = psycopg2.connect(DB_DIRECT_URL)\ncur = conn.cursor()\nfeature_cols = [\"brightness_level\", \"voltage\", \"power_consumption\"]\n# ================= MAIN LOOP =================\nfor log_id in log_ids:\n    cur.execute(\"\"\"\n        SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp\n        FROM sensor_logs WHERE log_id = %s\n    \"\"\", (log_id,))",
+        "peekOfCode": "log_ids = [int(x) for x in sys.argv[1].split(\",\")]\nconn = psycopg2.connect(DB_DIRECT_URL)\ncur = conn.cursor()\n# ================= FEATURE CONSISTENCY (QUAN TRỌNG NHẤT) =================\nfeature_cols = [\"current_value\", \"brightness_level\", \"voltage\", \"power_consumption\"]\nfor log_id in log_ids:\n    cur.execute(\"\"\"\n        SELECT log_id, zone_id,\n               current_value, brightness_level, voltage, power_consumption,\n               timestamp",
         "detail": "backend.ml.anomaly_detection",
         "documentation": {}
     },
@@ -246,7 +264,7 @@
         "kind": 5,
         "importPath": "backend.ml.anomaly_detection",
         "description": "backend.ml.anomaly_detection",
-        "peekOfCode": "conn = psycopg2.connect(DB_DIRECT_URL)\ncur = conn.cursor()\nfeature_cols = [\"brightness_level\", \"voltage\", \"power_consumption\"]\n# ================= MAIN LOOP =================\nfor log_id in log_ids:\n    cur.execute(\"\"\"\n        SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp\n        FROM sensor_logs WHERE log_id = %s\n    \"\"\", (log_id,))\n    row = cur.fetchone()",
+        "peekOfCode": "conn = psycopg2.connect(DB_DIRECT_URL)\ncur = conn.cursor()\n# ================= FEATURE CONSISTENCY (QUAN TRỌNG NHẤT) =================\nfeature_cols = [\"current_value\", \"brightness_level\", \"voltage\", \"power_consumption\"]\nfor log_id in log_ids:\n    cur.execute(\"\"\"\n        SELECT log_id, zone_id,\n               current_value, brightness_level, voltage, power_consumption,\n               timestamp\n        FROM sensor_logs",
         "detail": "backend.ml.anomaly_detection",
         "documentation": {}
     },
@@ -255,7 +273,7 @@
         "kind": 5,
         "importPath": "backend.ml.anomaly_detection",
         "description": "backend.ml.anomaly_detection",
-        "peekOfCode": "cur = conn.cursor()\nfeature_cols = [\"brightness_level\", \"voltage\", \"power_consumption\"]\n# ================= MAIN LOOP =================\nfor log_id in log_ids:\n    cur.execute(\"\"\"\n        SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp\n        FROM sensor_logs WHERE log_id = %s\n    \"\"\", (log_id,))\n    row = cur.fetchone()\n    if not row:",
+        "peekOfCode": "cur = conn.cursor()\n# ================= FEATURE CONSISTENCY (QUAN TRỌNG NHẤT) =================\nfeature_cols = [\"current_value\", \"brightness_level\", \"voltage\", \"power_consumption\"]\nfor log_id in log_ids:\n    cur.execute(\"\"\"\n        SELECT log_id, zone_id,\n               current_value, brightness_level, voltage, power_consumption,\n               timestamp\n        FROM sensor_logs\n        WHERE log_id = %s",
         "detail": "backend.ml.anomaly_detection",
         "documentation": {}
     },
@@ -264,7 +282,7 @@
         "kind": 5,
         "importPath": "backend.ml.anomaly_detection",
         "description": "backend.ml.anomaly_detection",
-        "peekOfCode": "feature_cols = [\"brightness_level\", \"voltage\", \"power_consumption\"]\n# ================= MAIN LOOP =================\nfor log_id in log_ids:\n    cur.execute(\"\"\"\n        SELECT log_id, zone_id, brightness_level, current_value, voltage, power_consumption, timestamp\n        FROM sensor_logs WHERE log_id = %s\n    \"\"\", (log_id,))\n    row = cur.fetchone()\n    if not row:\n        continue",
+        "peekOfCode": "feature_cols = [\"current_value\", \"brightness_level\", \"voltage\", \"power_consumption\"]\nfor log_id in log_ids:\n    cur.execute(\"\"\"\n        SELECT log_id, zone_id,\n               current_value, brightness_level, voltage, power_consumption,\n               timestamp\n        FROM sensor_logs\n        WHERE log_id = %s\n    \"\"\", (log_id,))\n    row = cur.fetchone()",
         "detail": "backend.ml.anomaly_detection",
         "documentation": {}
     },
@@ -381,7 +399,7 @@
         "kind": 2,
         "importPath": "backend.ml.train_anomaly",
         "description": "backend.ml.train_anomaly",
-        "peekOfCode": "def train_model():\n    print(\"[1] Loading data from DB...\")\n    try:\n        conn = psycopg2.connect(DB_DIRECT_URL)\n        query = \"\"\"\n            SELECT brightness_level, voltage, power_consumption\n            FROM sensor_logs\n            ORDER BY timestamp ASC\n            LIMIT 500\n        \"\"\"",
+        "peekOfCode": "def train_model():\n    print(\"[1] Loading data from DB...\")\n    try:\n        conn = psycopg2.connect(DB_DIRECT_URL)\n        query = \"\"\"\n            SELECT current_value, brightness_level, voltage, power_consumption\n            FROM sensor_logs\n            ORDER BY timestamp ASC\n            LIMIT 700\n        \"\"\"",
         "detail": "backend.ml.train_anomaly",
         "documentation": {}
     },
@@ -390,7 +408,16 @@
         "kind": 5,
         "importPath": "backend.ml.train_anomaly",
         "description": "backend.ml.train_anomaly",
-        "peekOfCode": "DB_DIRECT_URL = \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require\"\ndef train_model():\n    print(\"[1] Loading data from DB...\")\n    try:\n        conn = psycopg2.connect(DB_DIRECT_URL)\n        query = \"\"\"\n            SELECT brightness_level, voltage, power_consumption\n            FROM sensor_logs\n            ORDER BY timestamp ASC\n            LIMIT 500",
+        "peekOfCode": "DB_DIRECT_URL = \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require\"\nMODEL_DIR = \"models\"\nos.makedirs(MODEL_DIR, exist_ok=True)\ndef train_model():\n    print(\"[1] Loading data from DB...\")\n    try:\n        conn = psycopg2.connect(DB_DIRECT_URL)\n        query = \"\"\"\n            SELECT current_value, brightness_level, voltage, power_consumption\n            FROM sensor_logs",
+        "detail": "backend.ml.train_anomaly",
+        "documentation": {}
+    },
+    {
+        "label": "MODEL_DIR",
+        "kind": 5,
+        "importPath": "backend.ml.train_anomaly",
+        "description": "backend.ml.train_anomaly",
+        "peekOfCode": "MODEL_DIR = \"models\"\nos.makedirs(MODEL_DIR, exist_ok=True)\ndef train_model():\n    print(\"[1] Loading data from DB...\")\n    try:\n        conn = psycopg2.connect(DB_DIRECT_URL)\n        query = \"\"\"\n            SELECT current_value, brightness_level, voltage, power_consumption\n            FROM sensor_logs\n            ORDER BY timestamp ASC",
         "detail": "backend.ml.train_anomaly",
         "documentation": {}
     },
