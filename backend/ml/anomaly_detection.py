@@ -67,7 +67,7 @@ for log_id in log_ids:
         print(f"Zone {zone_id}: Power off")
         continue
 
-    if current_value == 0 and brightness == 0 and voltage > 0:
+    if current_value == 0 or brightness == 0 and voltage > 0:
         print(f"Zone {zone_id}: Lamp Failure")
         cur.execute("""
             INSERT INTO alerts (zone_id, alert_type, detected_time, severity, status)
