@@ -43,11 +43,8 @@ def train_model():
     X_train, X_test = train_test_split(scaled_data, test_size=0.3, random_state=42)
 
     print("[2] Training...")
-    model = IsolationForest(
-        n_estimators=300,
-        contamination=0.05,   # thử nghiệm với 5% anomaly
-        random_state=42
-    )
+    model = IsolationForest(n_estimators=300, contamination=0.02, random_state=42)
+
     model.fit(X_train)
 
     # ================= EVALUATION =================
