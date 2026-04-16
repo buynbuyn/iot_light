@@ -23,10 +23,8 @@ def send_telegram(msg):
 
 # ================= LOAD MODEL =================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 model = joblib.load(os.path.join(BASE_DIR, "models", "anomaly_model.pkl"))
 scaler = joblib.load(os.path.join(BASE_DIR, "models", "scaler.pkl"))
-
 print("Model loaded OK")
 
 # ================= DB CONFIG =================
@@ -40,17 +38,11 @@ log_ids = [int(x) for x in sys.argv[1].split(",")]
 conn = psycopg2.connect(DB_DIRECT_URL)
 cur = conn.cursor()
 
-# ================= FEATURE CONSISTENCY (PHẢI GIỐNG TRAIN) =================
-feature_cols = [
-    "current_value",
-    "brightness_level",
-    "voltage",
-    "power_consumption"
-]
+# ================= FEATURE SET FOR AI (PHẢI GIỐNG TRAIN) =================
+feature_cols = ["current_value", "brightness_level", "power_consumption"]
 
 # ================= MAIN LOOP =================
 for log_id in log_ids:
-
     cur.execute("""
         SELECT log_id, zone_id,
                current_value, brightness_level, voltage, power_consumption,
@@ -58,17 +50,15 @@ for log_id in log_ids:
         FROM sensor_logs
         WHERE log_id = %s
     """, (log_id,))
-
     row = cur.fetchone()
     if not row:
         continue
 
     log_id, zone_id, current_value, brightness, voltage, power, timestamp = row
 
-    # ================= CHECK ZONE =================
+    # ===== CHECK ZONE ACTIVE =====
     cur.execute("SELECT status FROM zones WHERE zone_id = %s", (zone_id,))
     zone_status = cur.fetchone()
-
     if not zone_status or zone_status[0] != "active":
         continue
 
@@ -79,48 +69,35 @@ for log_id in log_ids:
 
     if current_value == 0 and brightness == 0 and voltage > 0:
         print(f"Zone {zone_id}: Lamp Failure")
-
         cur.execute("""
             INSERT INTO alerts (zone_id, alert_type, detected_time, severity, status)
             VALUES (%s, %s, %s, %s, %s)
         """, (zone_id, "Lamp Failure", timestamp, "high", "unresolved"))
-
         cur.execute("UPDATE zones SET status = 'inactive' WHERE zone_id = %s", (zone_id,))
         send_telegram(f"LAMP FAILURE\nZone {zone_id}\nTime {timestamp}")
         conn.commit()
         continue
 
-    # ================= AI INPUT =================
-    df_new = pd.DataFrame([[
-        current_value,
-        brightness,
-        voltage,
-        power
-    ]], columns=feature_cols).fillna(0)
-
+    # ================= AI DETECTION =================
+    df_new = pd.DataFrame([[current_value, brightness, power]], columns=feature_cols).fillna(0)
     scaled = scaler.transform(df_new)
 
     iso_anomaly = (model.predict(scaled)[0] == -1)
-
     z_score = np.abs(scaled)
     z_anomaly = (z_score > 3.5).any()
 
-    # ================= RESULT =================
     if iso_anomaly or z_anomaly:
         print(f"Zone {zone_id}: Energy Anomaly")
-
         cur.execute("""
             INSERT INTO alerts (zone_id, alert_type, detected_time, severity, status)
             VALUES (%s, %s, %s, %s, %s)
         """, (zone_id, "Energy Anomaly", timestamp, "medium", "unresolved"))
-
         cur.execute("UPDATE zones SET status = 'inactive' WHERE zone_id = %s", (zone_id,))
         send_telegram(f"ENERGY ANOMALY\nZone {zone_id}\nTime {timestamp}")
-
     else:
         print(f"Zone {zone_id}: Normal")
+        # Nếu muốn zone trở lại active khi bình thường:
+        cur.execute("UPDATE zones SET status = 'active' WHERE zone_id = %s", (zone_id,))
 
     conn.commit()
-
-# ================= CLEAN CLOSE =================
 conn.close()
