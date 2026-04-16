@@ -84,7 +84,7 @@ for log_id in log_ids:
 
     iso_anomaly = (model.predict(scaled)[0] == -1)
     z_score = np.abs(scaled)
-    z_anomaly = (z_score > 4).any()
+    z_anomaly = (z_score > 4.5).any()
 
     if iso_anomaly or z_anomaly:
         print(f"Zone {zone_id}: Energy Anomaly")
