@@ -28,7 +28,7 @@ NEON_CONNECTION_STRING = (
     "postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler"
     ".ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require"
 )
-N_TRAIN    = 3
+N_TRAIN    = 4
 N_TEST     = 2
 MA_WINDOW  = 3
 

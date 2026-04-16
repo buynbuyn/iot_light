@@ -119,8 +119,6 @@ async function predictEnergyForZone(zone_id) {
 
         const scriptPath = path.join(__dirname, "../ml/energyModel.py");
 
-        console.log(formattedData)
-
         return new Promise((resolve, reject) => {
             const py = spawn("python", [
                 scriptPath,
@@ -149,7 +147,6 @@ async function predictEnergyForZone(zone_id) {
                     console.log("📦 Raw Python output:", output);
 
                     const res = JSON.parse(output.trim());
-                    console.log(res)
 
                     const predicted_wh = res.predicted_wh;
 

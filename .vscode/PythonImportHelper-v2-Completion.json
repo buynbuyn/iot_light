@@ -354,7 +354,7 @@
         "kind": 5,
         "importPath": "backend.ml.trainModel",
         "description": "backend.ml.trainModel",
-        "peekOfCode": "FRONTEND_PUBLIC_DIR = os.path.abspath(\n    os.path.join(BASE_DIR, \"../../frontend/public\")\n)\nOUTPUT_PNG = os.path.join(FRONTEND_PUBLIC_DIR, \"energy_forecast.png\")\nNEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler\"\n    \".ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n)\nN_TRAIN    = 3\nN_TEST     = 2",
+        "peekOfCode": "FRONTEND_PUBLIC_DIR = os.path.abspath(\n    os.path.join(BASE_DIR, \"../../frontend/public\")\n)\nOUTPUT_PNG = os.path.join(FRONTEND_PUBLIC_DIR, \"energy_forecast.png\")\nNEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler\"\n    \".ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n)\nN_TRAIN    = 4\nN_TEST     = 2",
         "detail": "backend.ml.trainModel",
         "documentation": {}
     },
@@ -363,7 +363,7 @@
         "kind": 5,
         "importPath": "backend.ml.trainModel",
         "description": "backend.ml.trainModel",
-        "peekOfCode": "OUTPUT_PNG = os.path.join(FRONTEND_PUBLIC_DIR, \"energy_forecast.png\")\nNEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler\"\n    \".ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n)\nN_TRAIN    = 3\nN_TEST     = 2\nMA_WINDOW  = 3\ndef mean_absolute_percentage_error(y_actual: np.ndarray, y_pred: np.ndarray) -> float:\n    mask = y_actual != 0",
+        "peekOfCode": "OUTPUT_PNG = os.path.join(FRONTEND_PUBLIC_DIR, \"energy_forecast.png\")\nNEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler\"\n    \".ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n)\nN_TRAIN    = 4\nN_TEST     = 2\nMA_WINDOW  = 3\ndef mean_absolute_percentage_error(y_actual: np.ndarray, y_pred: np.ndarray) -> float:\n    mask = y_actual != 0",
         "detail": "backend.ml.trainModel",
         "documentation": {}
     },
@@ -372,7 +372,7 @@
         "kind": 5,
         "importPath": "backend.ml.trainModel",
         "description": "backend.ml.trainModel",
-        "peekOfCode": "NEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler\"\n    \".ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n)\nN_TRAIN    = 3\nN_TEST     = 2\nMA_WINDOW  = 3\ndef mean_absolute_percentage_error(y_actual: np.ndarray, y_pred: np.ndarray) -> float:\n    mask = y_actual != 0\n    if not mask.any():",
+        "peekOfCode": "NEON_CONNECTION_STRING = (\n    \"postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i-pooler\"\n    \".ap-southeast-1.aws.neon.tech/iot_db?sslmode=require&channel_binding=require\"\n)\nN_TRAIN    = 4\nN_TEST     = 2\nMA_WINDOW  = 3\ndef mean_absolute_percentage_error(y_actual: np.ndarray, y_pred: np.ndarray) -> float:\n    mask = y_actual != 0\n    if not mask.any():",
         "detail": "backend.ml.trainModel",
         "documentation": {}
     },
