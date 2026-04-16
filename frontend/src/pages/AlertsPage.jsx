@@ -100,7 +100,7 @@ function AlertPage() {
 
                 <div className="model-plot-wrapper">
                     <img
-                        src="../../public/anomaly_train_test.png"
+                        src="../../public/analysis_chart.png"
                         alt="AI Accuracy Graph"
                         className="model-plot-img"
                     />
