@@ -9,6 +9,9 @@ from sklearn.preprocessing import StandardScaler
 
 DB_DIRECT_URL = "postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require"
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODELS_DIR = os.path.join(BASE_DIR, "models")
+
 def train_model():
     print("[1] Loading data from DB...")
 
@@ -31,32 +34,48 @@ def train_model():
         return
 
     # ================= PREPROCESS =================
-    feature_cols = ["current_value","brightness_level", "voltage", "power_consumption"]
-
+    feature_cols = ["current_value", "brightness_level", "voltage", "power_consumption"]
     df[feature_cols] = df[feature_cols].fillna(0)
+
+    print("[INFO] Total rows:", len(df))
+
+    if len(df) < 100:
+        print("Not enough data to train model well")
+        return
 
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(df[feature_cols])
 
     # ================= TRAIN TEST SPLIT =================
-    X_train = scaled_data[:500]
-    X_test = scaled_data[500:]
+    split_idx = min(500, len(scaled_data) - 1)
+    X_train = scaled_data[:split_idx]
+    X_test = scaled_data[split_idx:]
+
+    if len(X_test) == 0:
+        print("Not enough test data")
+        return
 
     # ================= TRAIN MULTI SIZE =================
-        # ================= TRAIN MULTI SIZE =================
     print("[2] Training with multiple sizes...")
 
-    train_sizes = [50, 100, 150, 200, 250, 300, 350, 400]
+    possible_sizes = [50, 100, 150, 200, 250, 300, 350, 400]
+    train_sizes = [size for size in possible_sizes if size <= len(X_train)]
+
+    if not train_sizes:
+        train_sizes = [len(X_train)]
+
     train_accuracies = []
     test_accuracies = []
     losses = []
+
+    final_model = None
 
     for size in train_sizes:
         X_sub = X_train[:size]
 
         model = IsolationForest(
             n_estimators=300,
-            contamination=0.05,
+            contamination=0.02,
             random_state=42
         )
         model.fit(X_sub)
@@ -75,6 +94,22 @@ def train_model():
         loss = (test_preds == -1).sum() / len(test_preds) * 100
         losses.append(loss)
 
+        final_model = model
+
+        print(f"[SIZE {size}] Train Acc: {train_acc:.2f}% | Test Acc: {test_acc:.2f}% | Loss: {loss:.2f}%")
+
+    # ================= SAVE MODEL =================
+    os.makedirs(MODELS_DIR, exist_ok=True)
+
+    model_path = os.path.join(MODELS_DIR, "anomaly_model.pkl")
+    scaler_path = os.path.join(MODELS_DIR, "scaler.pkl")
+
+    joblib.dump(final_model, model_path)
+    joblib.dump(scaler, scaler_path)
+
+    print(f"[OK] Saved model to: {model_path}")
+    print(f"[OK] Saved scaler to: {scaler_path}")
+
     # ================= PLOT =================
     plt.figure(figsize=(12, 7))
 
@@ -82,7 +117,6 @@ def train_model():
     plt.plot(train_sizes, test_accuracies, marker='s', label='Test Accuracy (%)', linewidth=2)
     plt.plot(train_sizes, losses, marker='x', label='Loss (Error Rate %)', linestyle='--')
 
-    # ===== TEXT GÓC PHẢI =====
     stats_text = (
         f"Final:\n"
         f"Train Acc: {train_accuracies[-1]:.2f}\n"
@@ -90,12 +124,14 @@ def train_model():
         f"Loss: {losses[-1]:.2f}%"
     )
 
-    plt.text(0.98, 0.3, stats_text,
-             transform=plt.gca().transAxes,
-             fontsize=11,
-             verticalalignment='bottom',
-             horizontalalignment='right',
-             bbox=dict(boxstyle='round', facecolor='white', alpha=0.8, edgecolor='gray'))
+    plt.text(
+        0.98, 0.3, stats_text,
+        transform=plt.gca().transAxes,
+        fontsize=11,
+        verticalalignment='bottom',
+        horizontalalignment='right',
+        bbox=dict(boxstyle='round', facecolor='white', alpha=0.8, edgecolor='gray')
+    )
 
     plt.title('Phân tích Mô hình: Train vs Test vs Loss', fontsize=14, pad=20)
     plt.xlabel('Số lượng mẫu huấn luyện (Training Size)', fontsize=11)
@@ -105,8 +141,12 @@ def train_model():
     plt.grid(True, linestyle=':', alpha=0.6)
 
     plt.tight_layout()
-    plt.savefig("anomaly_train_test.png")
 
-    print("[OK] Saved chart")
+    chart_path = os.path.join(BASE_DIR, "anomaly_train_test.png")
+    plt.savefig(chart_path)
+    plt.close()
+
+    print(f"[OK] Saved chart to: {chart_path}")
+
 if __name__ == "__main__":
     train_model()
