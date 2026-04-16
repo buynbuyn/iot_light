@@ -85,7 +85,7 @@ for log_id in log_ids:
     iso_anomaly = (model.predict(scaled)[0] == -1)
 
     z_score = np.abs(scaled)
-    z_anomaly = (z_score > 2.5).any()
+    z_anomaly = (z_score > 3.5).any()
 
     if iso_anomaly or z_anomaly:
         print("ANOMALY")
