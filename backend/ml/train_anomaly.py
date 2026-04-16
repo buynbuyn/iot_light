@@ -21,7 +21,7 @@ def train_model():
             SELECT current_value, brightness_level, voltage, power_consumption
             FROM sensor_logs
             ORDER BY timestamp ASC
-            LIMIT 550
+            LIMIT 700
         """
         df = pd.read_sql(query, conn)
         conn.close()
@@ -42,7 +42,7 @@ def train_model():
     scaled_data = scaler.fit_transform(df)
 
     # ================= SPLIT =================
-    X_train = scaled_data[:500]
+    X_train = scaled_data[:600]
     X_test = scaled_data[400:]   # overlap ok
 
     print("[2] Training...")
