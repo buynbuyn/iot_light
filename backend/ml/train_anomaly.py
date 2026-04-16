@@ -1,11 +1,11 @@
 import psycopg2
 import pandas as pd
 import joblib
-import matplotlib.pyplot as plt
 import numpy as np
 import os
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 
 DB_DIRECT_URL = "postgresql://neondb_owner:npg_alivbegXt69m@ep-bitter-mode-a1h4kt9i.ap-southeast-1.aws.neon.tech/iot_db?sslmode=require"
 
@@ -20,7 +20,7 @@ def train_model():
             SELECT current_value, brightness_level, power_consumption
             FROM sensor_logs
             ORDER BY timestamp ASC
-            LIMIT 700
+            LIMIT 1000
         """
         df = pd.read_sql(query, conn)
         conn.close()
@@ -40,22 +40,26 @@ def train_model():
     scaled_data = scaler.fit_transform(df)
 
     # ================= SPLIT =================
-    X_train = scaled_data[:600]
-    X_test = scaled_data[400:]   # overlap ok
+    X_train, X_test = train_test_split(scaled_data, test_size=0.3, random_state=42)
 
     print("[2] Training...")
-    model = IsolationForest(n_estimators=300, contamination=0.01, random_state=42)
+    model = IsolationForest(
+        n_estimators=300,
+        contamination=0.05,   # thử nghiệm với 5% anomaly
+        random_state=42
+    )
     model.fit(X_train)
 
     # ================= EVALUATION =================
     train_preds = model.predict(X_train)
     test_preds = model.predict(X_test)
+
     train_acc = (train_preds == 1).mean() * 100
     test_acc = (test_preds == 1).mean() * 100
     loss = (test_preds == -1).mean() * 100
 
-    print(f"Train Acc: {train_acc:.2f}")
-    print(f"Test Acc: {test_acc:.2f}")
+    print(f"Train Acc: {train_acc:.2f}%")
+    print(f"Test Acc: {test_acc:.2f}%")
     print(f"Loss: {loss:.2f}%")
 
     # ================= SAVE MODEL =================
