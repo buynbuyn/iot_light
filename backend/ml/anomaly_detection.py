@@ -50,7 +50,7 @@ log_ids = [int(x) for x in sys.argv[1].split(",")]
 conn = psycopg2.connect(DB_DIRECT_URL)
 cur = conn.cursor()
 
-feature_cols = ["current-value", "brightness_level", "voltage", "power_consumption"]
+feature_cols = ["current_value", "brightness_level", "voltage", "power_consumption"]
 
 # ================= MAIN LOOP =================
 for log_id in log_ids:
@@ -66,7 +66,8 @@ for log_id in log_ids:
     zone_id = row[1]
     detected_time = row[6]
 
-    df_new = pd.DataFrame([[row[2], row[4], row[5]]], columns=feature_cols).fillna(0)
+    df_new = pd.DataFrame([[row[3], row[2], row[4], row[5]]], columns=feature_cols).fillna(0)
+
 
     # ===== CHECK ZONE ACTIVE =====
     cur.execute("SELECT status FROM zones WHERE zone_id = %s", (zone_id,))
@@ -75,7 +76,8 @@ for log_id in log_ids:
         continue
 
     # ================= RULE 1: LAMP FAILURE =================
-    if int(row[2]) == 0 and int(row[4]) == 0:
+    if int(row[3]) == 0 and int(row[4]) == 0:
+
         print(f"Lamp Failure at Zone {zone_id}")
 
         cur.execute("""
