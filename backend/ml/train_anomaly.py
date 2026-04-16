@@ -18,7 +18,7 @@ def train_model():
             SELECT brightness_level, voltage, power_consumption
             FROM sensor_logs
             ORDER BY timestamp ASC
-            LIMIT 500
+            LIMIT 550
         """
         df = pd.read_sql(query, conn)
         conn.close()
@@ -39,7 +39,7 @@ def train_model():
     scaled_data = scaler.fit_transform(df[feature_cols])
 
     # ================= TRAIN TEST SPLIT =================
-    X_train = scaled_data[:400]
+    X_train = scaled_data[:500]
     X_test = scaled_data[400:]
 
     # ================= TRAIN MULTI SIZE =================
