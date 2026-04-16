@@ -50,7 +50,7 @@ log_ids = [int(x) for x in sys.argv[1].split(",")]
 conn = psycopg2.connect(DB_DIRECT_URL)
 cur = conn.cursor()
 
-feature_cols = ["brightness_level", "voltage", "power_consumption"]
+feature_cols = ["current-value", "brightness_level", "voltage", "power_consumption"]
 
 # ================= MAIN LOOP =================
 for log_id in log_ids:
@@ -98,7 +98,7 @@ for log_id in log_ids:
     iso_anomaly = (model.predict(new_scaled)[0] == -1)
 
     z_scores = np.abs(new_scaled)
-    z_anomaly = (z_scores > 1).any()
+    z_anomaly = (z_scores > 2).any()
 
     if iso_anomaly or z_anomaly:
         print(f"Anomaly Detected for Log {log_id}")
