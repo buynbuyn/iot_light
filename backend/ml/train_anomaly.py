@@ -15,7 +15,7 @@ def train_model():
     try:
         conn = psycopg2.connect(DB_DIRECT_URL)
         query = """
-            SELECT brightness_level, voltage, power_consumption
+            SELECT current_value, brightness_level, voltage, power_consumption
             FROM sensor_logs
             ORDER BY timestamp ASC
             LIMIT 550
@@ -31,7 +31,7 @@ def train_model():
         return
 
     # ================= PREPROCESS =================
-    feature_cols = ["brightness_level", "voltage", "power_consumption"]
+    feature_cols = ["current_value","brightness_level", "voltage", "power_consumption"]
 
     df[feature_cols] = df[feature_cols].fillna(0)
 
@@ -40,7 +40,7 @@ def train_model():
 
     # ================= TRAIN TEST SPLIT =================
     X_train = scaled_data[:500]
-    X_test = scaled_data[400:]
+    X_test = scaled_data[500:]
 
     # ================= TRAIN MULTI SIZE =================
         # ================= TRAIN MULTI SIZE =================
@@ -61,19 +61,18 @@ def train_model():
         )
         model.fit(X_sub)
 
-        # ===== TRAIN SCORE =====
-        train_score = model.score_samples(X_sub)
-        train_acc = np.mean(train_score) * 10 + 100  # scale cho đẹp
+        # ===== TRAIN PREDICTIONS =====
+        train_preds = model.predict(X_sub)
+        train_acc = (train_preds == 1).sum() / len(train_preds) * 100
         train_accuracies.append(train_acc)
 
-        # ===== TEST SCORE =====
-        test_score = model.score_samples(X_test)
-        test_acc = np.mean(test_score) * 10 + 100
+        # ===== TEST PREDICTIONS =====
+        test_preds = model.predict(X_test)
+        test_acc = (test_preds == 1).sum() / len(test_preds) * 100
         test_accuracies.append(test_acc)
 
         # ===== LOSS (% anomaly trên test) =====
-        preds = model.predict(X_test)
-        loss = (preds == -1).sum() / len(X_test) * 100
+        loss = (test_preds == -1).sum() / len(test_preds) * 100
         losses.append(loss)
 
     # ================= PLOT =================
