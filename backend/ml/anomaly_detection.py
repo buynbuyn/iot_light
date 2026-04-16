@@ -60,7 +60,7 @@ for log_id in log_ids:
     log_id, zone_id, current_value, brightness, voltage, power, timestamp = row
 
     # ================= RULE =================
-    if brightness == 0 and voltage == 0:
+    if brightness == 0 or voltage == 0 or current_value == 0:
         print("Lamp failure")
 
         cur.execute("""
@@ -85,7 +85,7 @@ for log_id in log_ids:
     iso_anomaly = (model.predict(scaled)[0] == -1)
 
     z_score = np.abs(scaled)
-    z_anomaly = (z_score > 2).any()
+    z_anomaly = (z_score > 3.5).any()
 
     if iso_anomaly or z_anomaly:
         print("ANOMALY")
