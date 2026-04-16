@@ -14,11 +14,10 @@ os.makedirs(MODEL_DIR, exist_ok=True)
 
 def train_model():
     print("[1] Loading data from DB...")
-
     try:
         conn = psycopg2.connect(DB_DIRECT_URL)
         query = """
-            SELECT current_value, brightness_level, voltage, power_consumption
+            SELECT current_value, brightness_level, power_consumption
             FROM sensor_logs
             ORDER BY timestamp ASC
             LIMIT 700
@@ -34,8 +33,7 @@ def train_model():
         return
 
     # ================= FEATURE SET =================
-    feature_cols = ["current_value", "brightness_level", "voltage", "power_consumption"]
-
+    feature_cols = ["current_value", "brightness_level", "power_consumption"]
     df = df[feature_cols].fillna(0)
 
     scaler = StandardScaler()
@@ -46,19 +44,12 @@ def train_model():
     X_test = scaled_data[400:]   # overlap ok
 
     print("[2] Training...")
-
-    model = IsolationForest(
-        n_estimators=300,
-        contamination=0.01,
-        random_state=42
-    )
-
+    model = IsolationForest(n_estimators=300, contamination=0.01, random_state=42)
     model.fit(X_train)
 
     # ================= EVALUATION =================
     train_preds = model.predict(X_train)
     test_preds = model.predict(X_test)
-
     train_acc = (train_preds == 1).mean() * 100
     test_acc = (test_preds == 1).mean() * 100
     loss = (test_preds == -1).mean() * 100
@@ -70,7 +61,6 @@ def train_model():
     # ================= SAVE MODEL =================
     joblib.dump(model, os.path.join(MODEL_DIR, "anomaly_model.pkl"))
     joblib.dump(scaler, os.path.join(MODEL_DIR, "scaler.pkl"))
-
     print("[OK] Model + Scaler saved")
 
 if __name__ == "__main__":
